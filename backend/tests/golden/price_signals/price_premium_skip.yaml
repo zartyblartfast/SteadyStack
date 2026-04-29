@@ -1,0 +1,33 @@
+scenario: "Price well above MA — should SKIP even with low fees"
+date_sourced: "2025-02-20"
+source: "CoinGecko + mempool.space historical"
+
+signals:
+  fee_rate_sat_vb: 10.0
+  fastest_fee: 12.0
+  half_hour_fee: 11.0
+  hour_fee: 10.0
+  economy_fee: 6.0
+  mempool_depth_mb: 3.0
+  price_usd: 72000.0
+  price_1h_change_pct: 0.8
+  price_24h_change_pct: 3.5
+  price_7d_change_pct: 8.0
+  price_7d_avg: 66500.0
+  price_30d_avg: 64000.0
+  volatility_24h_pct: 2.8
+  volatility_7d_pct: 3.5
+
+profile: conservative
+
+expected_action: skip
+
+human_reasoning: >
+  Price is 8.3% above the 7-day average — far beyond the conservative premium
+  threshold of 2.0%. This is a strong skip signal on the price axis. Even though
+  fees are very low (10 sat/vB, below the conservative low threshold of 15), the
+  price signal is strongly negative. Under the conservative profile, price has
+  weight 0.3 and fee has weight 0.5, but the price premium is so extreme that
+  it should pull the score below the skip threshold. Buying at a significant
+  premium defeats the purpose of intelligent DCA timing. SKIP and wait for
+  price to return closer to the average.

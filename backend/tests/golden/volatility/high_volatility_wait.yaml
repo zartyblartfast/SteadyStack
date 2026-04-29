@@ -1,0 +1,33 @@
+scenario: "High volatility with otherwise neutral signals — should WAIT"
+date_sourced: "2025-04-02"
+source: "CoinGecko + mempool.space historical"
+
+signals:
+  fee_rate_sat_vb: 30.0
+  fastest_fee: 40.0
+  half_hour_fee: 35.0
+  hour_fee: 30.0
+  economy_fee: 18.0
+  mempool_depth_mb: 15.0
+  price_usd: 64000.0
+  price_1h_change_pct: 2.5
+  price_24h_change_pct: -1.0
+  price_7d_change_pct: 0.5
+  price_7d_avg: 63800.0
+  price_30d_avg: 63500.0
+  volatility_24h_pct: 6.5
+  volatility_7d_pct: 5.5
+
+profile: balanced
+
+expected_action: wait
+
+human_reasoning: >
+  Fees are moderate (30 sat/vB, between balanced low 25 and mid 50) — mildly
+  positive. Price is close to the 7-day average (only 0.3% above) — neutral.
+  However, 24h volatility is 6.5%, well above the balanced turbulent threshold
+  of 5.0%. This means the market is moving fast and unpredictably. The volatility
+  signal (weight 0.25) should drag the overall score into the zone between
+  skip and buy thresholds. The correct action is WAIT — conditions are not bad
+  enough to skip entirely, but too uncertain to commit to a buy. Re-evaluate
+  when volatility subsides.

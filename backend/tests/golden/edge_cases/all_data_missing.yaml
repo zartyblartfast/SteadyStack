@@ -1,0 +1,33 @@
+scenario: "All data sources unavailable — should SKIP with zero confidence"
+date_sourced: "2025-01-01"
+source: "Constructed — simulates total API failure"
+
+signals:
+  fee_rate_sat_vb: null
+  fastest_fee: null
+  half_hour_fee: null
+  hour_fee: null
+  economy_fee: null
+  mempool_depth_mb: null
+  price_usd: null
+  price_1h_change_pct: null
+  price_24h_change_pct: null
+  price_7d_change_pct: null
+  price_7d_avg: null
+  price_30d_avg: null
+  volatility_24h_pct: null
+  volatility_7d_pct: null
+  staleness_fees_s: 1800.0
+  staleness_price_s: 1800.0
+  staleness_onchain_s: 1800.0
+
+profile: balanced
+
+expected_action: skip
+expected_max_confidence: 0.1
+
+human_reasoning: >
+  All data sources are unavailable. The engine has no information to base a
+  decision on. Per the trust model: "It will never execute a buy with
+  insufficient data." The only safe action is SKIP with near-zero confidence.
+  This is the most important safety invariant in the system.

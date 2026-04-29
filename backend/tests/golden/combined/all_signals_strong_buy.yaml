@@ -1,0 +1,32 @@
+scenario: "All signals favourable — strong BUY with high confidence"
+date_sourced: "2025-01-20"
+source: "mempool.space + CoinGecko historical"
+
+signals:
+  fee_rate_sat_vb: 8.0
+  fastest_fee: 10.0
+  half_hour_fee: 9.0
+  hour_fee: 8.0
+  economy_fee: 5.0
+  mempool_depth_mb: 2.0
+  price_usd: 60000.0
+  price_1h_change_pct: -0.5
+  price_24h_change_pct: -3.0
+  price_7d_change_pct: -4.5
+  price_7d_avg: 63000.0
+  price_30d_avg: 64000.0
+  volatility_24h_pct: 1.0
+  volatility_7d_pct: 1.5
+
+profile: balanced
+
+expected_action: buy
+expected_min_confidence: 0.8
+
+human_reasoning: >
+  This is an ideal buying window. Fees are at 8 sat/vB — far below the balanced
+  low threshold of 25 (maximum fee score). Price is 4.8% below the 7-day average —
+  past the dip threshold of 2.0% (strong price signal). Volatility is 1.0% —
+  below the calm threshold of 2.0% (safe market). All three signals are strongly
+  positive. The combined score should be well above the buy threshold of 0.55,
+  and confidence should be high (>0.8). This is a clear BUY.

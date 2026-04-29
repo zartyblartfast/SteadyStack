@@ -1,0 +1,35 @@
+scenario: "Good signals but stale data — BUY with reduced confidence"
+date_sourced: "2025-01-10"
+source: "Constructed — simulates data staleness"
+
+signals:
+  fee_rate_sat_vb: 12.0
+  fastest_fee: 15.0
+  half_hour_fee: 13.0
+  hour_fee: 12.0
+  economy_fee: 8.0
+  mempool_depth_mb: 5.0
+  price_usd: 65000.0
+  price_1h_change_pct: -0.1
+  price_24h_change_pct: 0.5
+  price_7d_change_pct: -0.3
+  price_7d_avg: 65200.0
+  price_30d_avg: 64800.0
+  volatility_24h_pct: 1.2
+  volatility_7d_pct: 2.0
+  staleness_fees_s: 900.0
+  staleness_price_s: 900.0
+  staleness_onchain_s: 0.0
+
+profile: balanced
+
+expected_action: buy
+expected_max_confidence: 0.7
+
+human_reasoning: >
+  The signals are identical to the "low fees buy" scenario and would normally
+  produce a confident BUY. However, both fee and price data are 15 minutes
+  stale. The engine should still recommend BUY (the underlying signals are
+  good), but with reduced confidence because the data may no longer reflect
+  current conditions. Confidence should be noticeably lower than the fresh
+  data version of this scenario.

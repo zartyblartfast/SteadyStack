@@ -1,0 +1,33 @@
+scenario: "Price significantly below MA with moderate fees — should BUY"
+date_sourced: "2025-03-08"
+source: "CoinGecko + mempool.space historical"
+
+signals:
+  fee_rate_sat_vb: 35.0
+  fastest_fee: 45.0
+  half_hour_fee: 38.0
+  hour_fee: 35.0
+  economy_fee: 20.0
+  mempool_depth_mb: 20.0
+  price_usd: 58000.0
+  price_1h_change_pct: -1.2
+  price_24h_change_pct: -4.5
+  price_7d_change_pct: -6.0
+  price_7d_avg: 62000.0
+  price_30d_avg: 63500.0
+  volatility_24h_pct: 3.5
+  volatility_7d_pct: 4.0
+
+profile: balanced
+
+expected_action: buy
+expected_min_confidence: 0.5
+
+human_reasoning: >
+  Price is 6.5% below the 7-day average — well past the balanced dip threshold
+  of 2.0%. This is a strong buy signal on the price axis. Fees are at 35 sat/vB,
+  which is between the low (25) and mid (50) thresholds — a moderate positive
+  signal. Volatility is at 3.5% (24h), between the balanced calm (2.0%) and
+  turbulent (5.0%) thresholds — mildly cautious but not a blocker. The strong
+  price dip signal (weight 0.35) combined with moderate fee signal (weight 0.4)
+  should push the combined score above the buy threshold of 0.55. BUY.

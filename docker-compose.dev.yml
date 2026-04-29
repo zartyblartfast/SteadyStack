@@ -1,0 +1,25 @@
+# Local development services only. No application containers — run backend/frontend directly.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: steadystack-postgres
+    environment:
+      POSTGRES_DB: steadystack
+      POSTGRES_USER: steadystack
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: steadystack-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:

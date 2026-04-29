@@ -1,0 +1,58 @@
+{
+  "start_date": "2019-12-30",
+  "end_date": "2026-04-20",
+  "total_weeks": 330,
+  "profiles": {
+    "conservative": {
+      "profile_name": "conservative",
+      "total_weeks": 330,
+      "buy_weeks": 113,
+      "skip_weeks": 138,
+      "wait_weeks": 79,
+      "cost_improvement_pct": -57.925,
+      "fee_improvement_pct": 89.499,
+      "extra_btc_pct": -36.679,
+      "skip_accuracy_pct": 83.9,
+      "baseline_avg_cost": 28458.55,
+      "steadystack_avg_cost": 44943.14,
+      "baseline_btc": 1.15958127,
+      "steadystack_btc": 0.73426119,
+      "baseline_fees_pct": 4.0011,
+      "steadystack_fees_pct": 0.4201
+    },
+    "balanced": {
+      "profile_name": "balanced",
+      "total_weeks": 330,
+      "buy_weeks": 228,
+      "skip_weeks": 96,
+      "wait_weeks": 6,
+      "cost_improvement_pct": -10.125,
+      "fee_improvement_pct": 72.273,
+      "extra_btc_pct": -9.194,
+      "skip_accuracy_pct": 84.3,
+      "baseline_avg_cost": 28458.55,
+      "steadystack_avg_cost": 31339.89,
+      "baseline_btc": 1.15958127,
+      "steadystack_btc": 1.05297103,
+      "baseline_fees_pct": 4.0011,
+      "steadystack_fees_pct": 1.1094
+    },
+    "aggressive": {
+      "profile_name": "aggressive",
+      "total_weeks": 330,
+      "buy_weeks": 254,
+      "skip_weeks": 1,
+      "wait_weeks": 75,
+      "cost_improvement_pct": -8.064,
+      "fee_improvement_pct": 64.234,
+      "extra_btc_pct": -7.462,
+      "skip_accuracy_pct": 80.3,
+      "baseline_avg_cost": 28458.55,
+      "steadystack_avg_cost": 30753.44,
+      "baseline_btc": 1.15958127,
+      "steadystack_btc": 1.07305079,
+      "baseline_fees_pct": 4.0011,
+      "steadystack_fees_pct": 1.431
+    }
+  }
+}

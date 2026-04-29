@@ -1,0 +1,33 @@
+scenario: "High fees override favourable price — should SKIP"
+date_sourced: "2025-01-15"
+source: "mempool.space + CoinGecko historical"
+
+signals:
+  fee_rate_sat_vb: 120.0
+  fastest_fee: 150.0
+  half_hour_fee: 130.0
+  hour_fee: 120.0
+  economy_fee: 90.0
+  mempool_depth_mb: 85.0
+  price_usd: 42500.0
+  price_1h_change_pct: -0.5
+  price_24h_change_pct: -2.0
+  price_7d_change_pct: -3.84
+  price_7d_avg: 44200.0
+  price_30d_avg: 45000.0
+  volatility_24h_pct: 1.2
+  volatility_7d_pct: 2.5
+
+profile: balanced
+
+expected_action: skip
+expected_max_confidence: 0.4
+
+human_reasoning: >
+  Price is 3.8% below the 7-day average, which would normally favour a buy under
+  the balanced profile (dip threshold is 2.0%). However, mempool fees are at
+  120 sat/vB — well above the balanced high threshold of 80. The fee signal
+  is strongly negative. The cost-saving from a better entry price would be
+  wiped out by the high transaction fee. The fee signal (weight 0.4) dominates
+  and pulls the combined score well below the skip threshold. The correct
+  action is SKIP.

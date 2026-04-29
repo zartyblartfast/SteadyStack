@@ -1,0 +1,32 @@
+scenario: "Low fees with neutral price — should BUY"
+date_sourced: "2025-01-10"
+source: "mempool.space historical"
+
+signals:
+  fee_rate_sat_vb: 12.0
+  fastest_fee: 15.0
+  half_hour_fee: 13.0
+  hour_fee: 12.0
+  economy_fee: 8.0
+  mempool_depth_mb: 5.0
+  price_usd: 65000.0
+  price_1h_change_pct: -0.1
+  price_24h_change_pct: 0.5
+  price_7d_change_pct: -0.3
+  price_7d_avg: 65200.0
+  price_30d_avg: 64800.0
+  volatility_24h_pct: 1.2
+  volatility_7d_pct: 2.0
+
+profile: balanced
+
+expected_action: buy
+expected_min_confidence: 0.6
+
+human_reasoning: >
+  Fees are at 12 sat/vB — well below the balanced profile's low threshold of 25.
+  This is a strong fee signal to buy. Price is roughly in line with the 7-day
+  average (only 0.3% below), so the price signal is neutral-to-slightly-positive.
+  Volatility is low (1.2% 24h) — below the calm threshold of 2.0%.
+  All three signals are favourable or neutral. The combined score should comfortably
+  exceed the buy threshold of 0.55. The correct action is BUY.

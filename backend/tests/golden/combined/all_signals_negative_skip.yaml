@@ -1,0 +1,33 @@
+scenario: "All signals unfavourable — strong SKIP"
+date_sourced: "2025-02-15"
+source: "mempool.space + CoinGecko historical"
+
+signals:
+  fee_rate_sat_vb: 95.0
+  fastest_fee: 130.0
+  half_hour_fee: 110.0
+  hour_fee: 95.0
+  economy_fee: 70.0
+  mempool_depth_mb: 75.0
+  price_usd: 70000.0
+  price_1h_change_pct: 1.5
+  price_24h_change_pct: 4.0
+  price_7d_change_pct: 7.0
+  price_7d_avg: 65500.0
+  price_30d_avg: 63000.0
+  volatility_24h_pct: 6.0
+  volatility_7d_pct: 5.5
+
+profile: balanced
+
+expected_action: skip
+expected_max_confidence: 0.3
+
+human_reasoning: >
+  Everything is unfavourable. Fees at 95 sat/vB are above the balanced high
+  threshold of 80 (strong negative fee signal). Price is 6.9% above the 7-day
+  average — well past the premium threshold of 3.0% (strong negative price
+  signal). Volatility at 6.0% is above the turbulent threshold of 5.0%
+  (negative volatility signal). All three signals point to skip. The combined
+  score should be well below the skip threshold of 0.25. SKIP — this is the
+  worst possible time to buy.

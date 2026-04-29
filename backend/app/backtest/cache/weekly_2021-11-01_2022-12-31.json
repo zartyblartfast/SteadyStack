@@ -1,0 +1,612 @@
+[
+  {
+    "week_start": "2021-11-01",
+    "price_usd": 61804.19571428571,
+    "price_7d_avg": 61804.19571428571,
+    "price_30d_avg": 61804.19571428571,
+    "volatility_24h_pct": 1.3947702216728475,
+    "fee_proxy_sat_vb": 38.5,
+    "mempool_size_bytes": 2657051.0,
+    "mempool_tx_count": 1969.7857142857142
+  },
+  {
+    "week_start": "2021-11-08",
+    "price_usd": 65185.80714285715,
+    "price_7d_avg": 65185.80714285715,
+    "price_30d_avg": 63495.00142857143,
+    "volatility_24h_pct": 1.9949991727246716,
+    "fee_proxy_sat_vb": 39.7,
+    "mempool_size_bytes": 7861771.0,
+    "mempool_tx_count": 7825.142857142857
+  },
+  {
+    "week_start": "2021-11-15",
+    "price_usd": 60634.135714285716,
+    "price_7d_avg": 60634.135714285716,
+    "price_30d_avg": 62541.37952380952,
+    "volatility_24h_pct": 3.2134423787131037,
+    "fee_proxy_sat_vb": 31.7,
+    "mempool_size_bytes": 1457336.357142857,
+    "mempool_tx_count": 3159.0714285714284
+  },
+  {
+    "week_start": "2021-11-22",
+    "price_usd": 56735.427142857145,
+    "price_7d_avg": 56735.427142857145,
+    "price_30d_avg": 61089.89142857143,
+    "volatility_24h_pct": 3.58605405122955,
+    "fee_proxy_sat_vb": 31.5,
+    "mempool_size_bytes": 3006239.714285714,
+    "mempool_tx_count": 6368.428571428572
+  },
+  {
+    "week_start": "2021-11-29",
+    "price_usd": 55550.351428571434,
+    "price_7d_avg": 55550.351428571434,
+    "price_30d_avg": 59702.27451612903,
+    "volatility_24h_pct": 2.8651003695440536,
+    "fee_proxy_sat_vb": 41.4,
+    "mempool_size_bytes": 9065570.07142857,
+    "mempool_tx_count": 9149.714285714286
+  },
+  {
+    "week_start": "2021-12-06",
+    "price_usd": 49325.485714285714,
+    "price_7d_avg": 49325.485714285714,
+    "price_30d_avg": 56426.84580645161,
+    "volatility_24h_pct": 2.386779446836878,
+    "fee_proxy_sat_vb": 28.4,
+    "mempool_size_bytes": 6195103.142857143,
+    "mempool_tx_count": 2756.285714285714
+  },
+  {
+    "week_start": "2021-12-13",
+    "price_usd": 47835.33571428571,
+    "price_7d_avg": 47835.33571428571,
+    "price_30d_avg": 52934.146451612905,
+    "volatility_24h_pct": 3.056363801930731,
+    "fee_proxy_sat_vb": 29.9,
+    "mempool_size_bytes": 4816419.214285715,
+    "mempool_tx_count": 7336.571428571428
+  },
+  {
+    "week_start": "2021-12-20",
+    "price_usd": 49033.404285714285,
+    "price_7d_avg": 49033.404285714285,
+    "price_30d_avg": 50952.801612903226,
+    "volatility_24h_pct": 1.764221781332835,
+    "fee_proxy_sat_vb": 28.6,
+    "mempool_size_bytes": 5540777.928571428,
+    "mempool_tx_count": 3850.8571428571427
+  },
+  {
+    "week_start": "2021-12-27",
+    "price_usd": 48092.770000000004,
+    "price_7d_avg": 48092.770000000004,
+    "price_30d_avg": 49015.649999999994,
+    "volatility_24h_pct": 2.587392500527391,
+    "fee_proxy_sat_vb": 43.1,
+    "mempool_size_bytes": 10408065.714285715,
+    "mempool_tx_count": 10002.0
+  },
+  {
+    "week_start": "2022-01-03",
+    "price_usd": 44201.229999999996,
+    "price_7d_avg": 44201.229999999996,
+    "price_30d_avg": 47365.03193548387,
+    "volatility_24h_pct": 2.2036649964584867,
+    "fee_proxy_sat_vb": 36.3,
+    "mempool_size_bytes": 2259182.6428571427,
+    "mempool_tx_count": 5031.785714285715
+  },
+  {
+    "week_start": "2022-01-10",
+    "price_usd": 42736.450000000004,
+    "price_7d_avg": 42736.450000000004,
+    "price_30d_avg": 46101.37225806452,
+    "volatility_24h_pct": 1.5818013199690764,
+    "fee_proxy_sat_vb": 27.0,
+    "mempool_size_bytes": 702265.3571428572,
+    "mempool_tx_count": 1212.0
+  },
+  {
+    "week_start": "2022-01-17",
+    "price_usd": 40239.54571428571,
+    "price_7d_avg": 40239.54571428571,
+    "price_30d_avg": 44482.62806451613,
+    "volatility_24h_pct": 3.4225812636072104,
+    "fee_proxy_sat_vb": 27.0,
+    "mempool_size_bytes": 2389649.785714286,
+    "mempool_tx_count": 3750.0714285714284
+  },
+  {
+    "week_start": "2022-01-24",
+    "price_usd": 37119.34857142857,
+    "price_7d_avg": 37119.34857142857,
+    "price_30d_avg": 41652.31838709678,
+    "volatility_24h_pct": 0.9717629005075542,
+    "fee_proxy_sat_vb": 33.1,
+    "mempool_size_bytes": 2336254.714285714,
+    "mempool_tx_count": 2315.6428571428573
+  },
+  {
+    "week_start": "2022-01-31",
+    "price_usd": 38886.40714285714,
+    "price_7d_avg": 38886.40714285714,
+    "price_30d_avg": 39974.57612903226,
+    "volatility_24h_pct": 3.3045107143640906,
+    "fee_proxy_sat_vb": 35.4,
+    "mempool_size_bytes": 9561000.0,
+    "mempool_tx_count": 7701.642857142857
+  },
+  {
+    "week_start": "2022-02-07",
+    "price_usd": 43284.78857142857,
+    "price_7d_avg": 43284.78857142857,
+    "price_30d_avg": 40177.51516129032,
+    "volatility_24h_pct": 1.5754363902024073,
+    "fee_proxy_sat_vb": 41.3,
+    "mempool_size_bytes": 20229865.214285713,
+    "mempool_tx_count": 8403.714285714286
+  },
+  {
+    "week_start": "2022-02-14",
+    "price_usd": 41980.875714285714,
+    "price_7d_avg": 41980.875714285714,
+    "price_30d_avg": 40036.66580645161,
+    "volatility_24h_pct": 2.724843235260772,
+    "fee_proxy_sat_vb": 27.4,
+    "mempool_size_bytes": 1744066.0714285714,
+    "mempool_tx_count": 3483.4285714285716
+  },
+  {
+    "week_start": "2022-02-21",
+    "price_usd": 38234.048571428575,
+    "price_7d_avg": 38234.048571428575,
+    "price_30d_avg": 40316.333225806455,
+    "volatility_24h_pct": 2.4663817904224072,
+    "fee_proxy_sat_vb": 26.5,
+    "mempool_size_bytes": 1415165.9285714286,
+    "mempool_tx_count": 2806.8571428571427
+  },
+  {
+    "week_start": "2022-02-28",
+    "price_usd": 41469.97571428572,
+    "price_7d_avg": 41469.97571428572,
+    "price_30d_avg": 41125.80129032258,
+    "volatility_24h_pct": 5.054295545539787,
+    "fee_proxy_sat_vb": 46.1,
+    "mempool_size_bytes": 4512588.142857143,
+    "mempool_tx_count": 5811.142857142857
+  },
+  {
+    "week_start": "2022-03-07",
+    "price_usd": 39162.561428571425,
+    "price_7d_avg": 39162.561428571425,
+    "price_30d_avg": 40455.166774193545,
+    "volatility_24h_pct": 3.180604703259375,
+    "fee_proxy_sat_vb": 29.3,
+    "mempool_size_bytes": 1890036.142857143,
+    "mempool_tx_count": 1993.5
+  },
+  {
+    "week_start": "2022-03-14",
+    "price_usd": 40417.10857142857,
+    "price_7d_avg": 40417.10857142857,
+    "price_30d_avg": 39860.68225806452,
+    "volatility_24h_pct": 2.330168471022563,
+    "fee_proxy_sat_vb": 26.3,
+    "mempool_size_bytes": 1991667.7857142857,
+    "mempool_tx_count": 3863.785714285714
+  },
+  {
+    "week_start": "2022-03-21",
+    "price_usd": 42925.880000000005,
+    "price_7d_avg": 42925.880000000005,
+    "price_30d_avg": 40790.32161290322,
+    "volatility_24h_pct": 1.4401684274272137,
+    "fee_proxy_sat_vb": 28.6,
+    "mempool_size_bytes": 2572895.6428571427,
+    "mempool_tx_count": 3331.6428571428573
+  },
+  {
+    "week_start": "2022-03-28",
+    "price_usd": 46590.53857142857,
+    "price_7d_avg": 46590.53857142857,
+    "price_30d_avg": 42086.38225806452,
+    "volatility_24h_pct": 1.3205668115881006,
+    "fee_proxy_sat_vb": 34.5,
+    "mempool_size_bytes": 4074897.6428571427,
+    "mempool_tx_count": 5008.214285714285
+  },
+  {
+    "week_start": "2022-04-04",
+    "price_usd": 44323.724285714285,
+    "price_7d_avg": 44323.724285714285,
+    "price_30d_avg": 43122.22161290323,
+    "volatility_24h_pct": 2.0709198554668804,
+    "fee_proxy_sat_vb": 27.8,
+    "mempool_size_bytes": 1352992.357142857,
+    "mempool_tx_count": 2087.0714285714284
+  },
+  {
+    "week_start": "2022-04-11",
+    "price_usd": 40539.712857142855,
+    "price_7d_avg": 40539.712857142855,
+    "price_30d_avg": 43407.22129032258,
+    "volatility_24h_pct": 2.5674395812908086,
+    "fee_proxy_sat_vb": 25.9,
+    "mempool_size_bytes": 690376.9285714285,
+    "mempool_tx_count": 1421.5714285714287
+  },
+  {
+    "week_start": "2022-04-18",
+    "price_usd": 40438.70428571429,
+    "price_7d_avg": 40438.70428571429,
+    "price_30d_avg": 43100.966129032255,
+    "volatility_24h_pct": 1.5945325239927366,
+    "fee_proxy_sat_vb": 25.2,
+    "mempool_size_bytes": 2329140.0,
+    "mempool_tx_count": 4555.285714285715
+  },
+  {
+    "week_start": "2022-04-25",
+    "price_usd": 39047.142857142855,
+    "price_7d_avg": 39047.142857142855,
+    "price_30d_avg": 41551.35903225807,
+    "volatility_24h_pct": 3.0090826089520704,
+    "fee_proxy_sat_vb": 29.6,
+    "mempool_size_bytes": 3781567.0,
+    "mempool_tx_count": 4279.428571428572
+  },
+  {
+    "week_start": "2022-05-02",
+    "price_usd": 37488.93714285714,
+    "price_7d_avg": 37488.93714285714,
+    "price_30d_avg": 39713.94935483871,
+    "volatility_24h_pct": 3.0229477359468664,
+    "fee_proxy_sat_vb": 37.8,
+    "mempool_size_bytes": 9160104.857142856,
+    "mempool_tx_count": 10170.42857142857
+  },
+  {
+    "week_start": "2022-05-09",
+    "price_usd": 30344.115714285716,
+    "price_7d_avg": 30344.115714285716,
+    "price_30d_avg": 37165.3929032258,
+    "volatility_24h_pct": 4.162478043576288,
+    "fee_proxy_sat_vb": 60.9,
+    "mempool_size_bytes": 64385328.0,
+    "mempool_tx_count": 27213.928571428572
+  },
+  {
+    "week_start": "2022-05-16",
+    "price_usd": 29865.495714285713,
+    "price_7d_avg": 29865.495714285713,
+    "price_30d_avg": 34738.4035483871,
+    "volatility_24h_pct": 3.7349430705585296,
+    "fee_proxy_sat_vb": 45.9,
+    "mempool_size_bytes": 5329274.071428572,
+    "mempool_tx_count": 2786.5714285714284
+  },
+  {
+    "week_start": "2022-05-23",
+    "price_usd": 29327.56142857143,
+    "price_7d_avg": 29327.56142857143,
+    "price_30d_avg": 32426.13806451613,
+    "volatility_24h_pct": 1.8374429604990947,
+    "fee_proxy_sat_vb": 44.1,
+    "mempool_size_bytes": 2705398.9285714286,
+    "mempool_tx_count": 5281.428571428572
+  },
+  {
+    "week_start": "2022-05-30",
+    "price_usd": 30382.610000000004,
+    "price_7d_avg": 30382.610000000004,
+    "price_30d_avg": 30563.639677419353,
+    "volatility_24h_pct": 3.226231855468994,
+    "fee_proxy_sat_vb": 42.6,
+    "mempool_size_bytes": 2683411.5,
+    "mempool_tx_count": 3066.714285714286
+  },
+  {
+    "week_start": "2022-06-06",
+    "price_usd": 30006.51714285714,
+    "price_7d_avg": 30006.51714285714,
+    "price_30d_avg": 29848.874193548385,
+    "volatility_24h_pct": 2.463810577319214,
+    "fee_proxy_sat_vb": 32.3,
+    "mempool_size_bytes": 1071891.142857143,
+    "mempool_tx_count": 2284.3571428571427
+  },
+  {
+    "week_start": "2022-06-13",
+    "price_usd": 21932.477142857144,
+    "price_7d_avg": 21932.477142857144,
+    "price_30d_avg": 28077.53064516129,
+    "volatility_24h_pct": 5.943495821165736,
+    "fee_proxy_sat_vb": 61.6,
+    "mempool_size_bytes": 7154157.0,
+    "mempool_tx_count": 6438.571428571428
+  },
+  {
+    "week_start": "2022-06-20",
+    "price_usd": 20792.035714285714,
+    "price_7d_avg": 20792.035714285714,
+    "price_30d_avg": 26083.289677419354,
+    "volatility_24h_pct": 1.9929761588937023,
+    "fee_proxy_sat_vb": 45.1,
+    "mempool_size_bytes": 8104125.571428572,
+    "mempool_tx_count": 4129.071428571428
+  },
+  {
+    "week_start": "2022-06-27",
+    "price_usd": 20054.565714285713,
+    "price_7d_avg": 20054.565714285713,
+    "price_30d_avg": 23853.42064516129,
+    "volatility_24h_pct": 1.471704964176066,
+    "fee_proxy_sat_vb": 40.4,
+    "mempool_size_bytes": 3428118.214285714,
+    "mempool_tx_count": 3269.785714285714
+  },
+  {
+    "week_start": "2022-07-04",
+    "price_usd": 20725.347142857143,
+    "price_7d_avg": 20725.347142857143,
+    "price_30d_avg": 21678.011290322578,
+    "volatility_24h_pct": 2.042969401109803,
+    "fee_proxy_sat_vb": 55.6,
+    "mempool_size_bytes": 3184231.3571428573,
+    "mempool_tx_count": 4038.214285714286
+  },
+  {
+    "week_start": "2022-07-11",
+    "price_usd": 20414.172857142858,
+    "price_7d_avg": 20414.172857142858,
+    "price_30d_avg": 20440.825483870965,
+    "volatility_24h_pct": 2.850265118840399,
+    "fee_proxy_sat_vb": 61.8,
+    "mempool_size_bytes": 6383523.428571428,
+    "mempool_tx_count": 8064.071428571428
+  },
+  {
+    "week_start": "2022-07-18",
+    "price_usd": 22606.527142857143,
+    "price_7d_avg": 22606.527142857143,
+    "price_30d_avg": 20979.633870967744,
+    "volatility_24h_pct": 2.7345031084694473,
+    "fee_proxy_sat_vb": 59.6,
+    "mempool_size_bytes": 3959806.3571428573,
+    "mempool_tx_count": 4857.357142857143
+  },
+  {
+    "week_start": "2022-07-25",
+    "price_usd": 22770.997142857144,
+    "price_7d_avg": 22770.997142857144,
+    "price_30d_avg": 21417.305161290322,
+    "volatility_24h_pct": 3.094630167020858,
+    "fee_proxy_sat_vb": 37.8,
+    "mempool_size_bytes": 1788115.857142857,
+    "mempool_tx_count": 3678.6428571428573
+  },
+  {
+    "week_start": "2022-08-01",
+    "price_usd": 23041.382857142857,
+    "price_7d_avg": 23041.382857142857,
+    "price_30d_avg": 22151.098387096776,
+    "volatility_24h_pct": 1.2737548309920352,
+    "fee_proxy_sat_vb": 43.0,
+    "mempool_size_bytes": 3694950.4285714286,
+    "mempool_tx_count": 5488.0
+  },
+  {
+    "week_start": "2022-08-08",
+    "price_usd": 23846.58285714286,
+    "price_7d_avg": 23846.58285714286,
+    "price_30d_avg": 22853.549677419356,
+    "volatility_24h_pct": 1.8492098365882395,
+    "fee_proxy_sat_vb": 45.7,
+    "mempool_size_bytes": 3889135.6428571427,
+    "mempool_tx_count": 7797.571428571428
+  },
+  {
+    "week_start": "2022-08-15",
+    "price_usd": 22972.428571428572,
+    "price_7d_avg": 22972.428571428572,
+    "price_30d_avg": 23120.084193548388,
+    "volatility_24h_pct": 2.7153103593255117,
+    "fee_proxy_sat_vb": 33.5,
+    "mempool_size_bytes": 3061575.0,
+    "mempool_tx_count": 5218.928571428572
+  },
+  {
+    "week_start": "2022-08-22",
+    "price_usd": 21097.687142857143,
+    "price_7d_avg": 21097.687142857143,
+    "price_30d_avg": 22838.800322580646,
+    "volatility_24h_pct": 1.6741797334248076,
+    "fee_proxy_sat_vb": 29.4,
+    "mempool_size_bytes": 876873.8571428572,
+    "mempool_tx_count": 1513.2142857142858
+  },
+  {
+    "week_start": "2022-08-29",
+    "price_usd": 19942.792857142857,
+    "price_7d_avg": 19942.792857142857,
+    "price_30d_avg": 22060.228064516126,
+    "volatility_24h_pct": 1.5686018711597685,
+    "fee_proxy_sat_vb": 38.4,
+    "mempool_size_bytes": 3346365.5714285714,
+    "mempool_tx_count": 3610.5
+  },
+  {
+    "week_start": "2022-09-05",
+    "price_usd": 20037.062857142857,
+    "price_7d_avg": 20037.062857142857,
+    "price_30d_avg": 21328.034838709675,
+    "volatility_24h_pct": 3.4581158215727767,
+    "fee_proxy_sat_vb": 39.7,
+    "mempool_size_bytes": 1428332.0,
+    "mempool_tx_count": 2075.0
+  },
+  {
+    "week_start": "2022-09-12",
+    "price_usd": 20597.764285714286,
+    "price_7d_avg": 20597.764285714286,
+    "price_30d_avg": 20545.63516129032,
+    "volatility_24h_pct": 2.9422203957466855,
+    "fee_proxy_sat_vb": 43.8,
+    "mempool_size_bytes": 3231810.0,
+    "mempool_tx_count": 4489.5
+  },
+  {
+    "week_start": "2022-09-19",
+    "price_usd": 19138.054285714286,
+    "price_7d_avg": 19138.054285714286,
+    "price_30d_avg": 19996.01806451613,
+    "volatility_24h_pct": 2.225261322825435,
+    "fee_proxy_sat_vb": 37.5,
+    "mempool_size_bytes": 2845352.5,
+    "mempool_tx_count": 4580.071428571428
+  },
+  {
+    "week_start": "2022-09-26",
+    "price_usd": 19287.33142857143,
+    "price_7d_avg": 19287.33142857143,
+    "price_30d_avg": 19785.156774193547,
+    "volatility_24h_pct": 1.1499948452997752,
+    "fee_proxy_sat_vb": 39.1,
+    "mempool_size_bytes": 448096.21428571426,
+    "mempool_tx_count": 962.2857142857143
+  },
+  {
+    "week_start": "2022-10-03",
+    "price_usd": 19730.20142857143,
+    "price_7d_avg": 19730.20142857143,
+    "price_30d_avg": 19795.535483870968,
+    "volatility_24h_pct": 1.8821423719131978,
+    "fee_proxy_sat_vb": 25.4,
+    "mempool_size_bytes": 597919.0,
+    "mempool_tx_count": 1447.357142857143
+  },
+  {
+    "week_start": "2022-10-10",
+    "price_usd": 19201.627142857145,
+    "price_7d_avg": 19201.627142857145,
+    "price_30d_avg": 19390.500322580647,
+    "volatility_24h_pct": 0.9046720547331049,
+    "fee_proxy_sat_vb": 29.2,
+    "mempool_size_bytes": 1308792.0714285714,
+    "mempool_tx_count": 2388.214285714286
+  },
+  {
+    "week_start": "2022-10-17",
+    "price_usd": 19242.07285714286,
+    "price_7d_avg": 19242.07285714286,
+    "price_30d_avg": 19349.98806451613,
+    "volatility_24h_pct": 0.8153748751540716,
+    "fee_proxy_sat_vb": 35.8,
+    "mempool_size_bytes": 2782202.785714286,
+    "mempool_tx_count": 2986.214285714286
+  },
+  {
+    "week_start": "2022-10-24",
+    "price_usd": 20212.10714285714,
+    "price_7d_avg": 20212.10714285714,
+    "price_30d_avg": 19582.02612903226,
+    "volatility_24h_pct": 2.2257994249722595,
+    "fee_proxy_sat_vb": 45.2,
+    "mempool_size_bytes": 2553198.214285714,
+    "mempool_tx_count": 4306.142857142857
+  },
+  {
+    "week_start": "2022-10-31",
+    "price_usd": 20631.68571428571,
+    "price_7d_avg": 20631.68571428571,
+    "price_30d_avg": 19804.241612903224,
+    "volatility_24h_pct": 1.3194058002949862,
+    "fee_proxy_sat_vb": 44.3,
+    "mempool_size_bytes": 3960671.5,
+    "mempool_tx_count": 5623.214285714285
+  },
+  {
+    "week_start": "2022-11-07",
+    "price_usd": 18176.102857142858,
+    "price_7d_avg": 18176.102857142858,
+    "price_30d_avg": 19531.126451612905,
+    "volatility_24h_pct": 6.85522515078128,
+    "fee_proxy_sat_vb": 52.4,
+    "mempool_size_bytes": 2795382.0714285714,
+    "mempool_tx_count": 4746.285714285715
+  },
+  {
+    "week_start": "2022-11-14",
+    "price_usd": 16641.074285714287,
+    "price_7d_avg": 16641.074285714287,
+    "price_30d_avg": 18937.11,
+    "volatility_24h_pct": 0.8049707672807735,
+    "fee_proxy_sat_vb": 86.8,
+    "mempool_size_bytes": 78507533.64285715,
+    "mempool_tx_count": 20978.64285714286
+  },
+  {
+    "week_start": "2022-11-21",
+    "price_usd": 16339.302857142857,
+    "price_7d_avg": 16339.302857142857,
+    "price_30d_avg": 18200.757096774192,
+    "volatility_24h_pct": 1.55177484570031,
+    "fee_proxy_sat_vb": 72.2,
+    "mempool_size_bytes": 9863156.92857143,
+    "mempool_tx_count": 7153.642857142857
+  },
+  {
+    "week_start": "2022-11-28",
+    "price_usd": 16741.362857142856,
+    "price_7d_avg": 16741.362857142856,
+    "price_30d_avg": 17352.86,
+    "volatility_24h_pct": 1.6957186115803753,
+    "fee_proxy_sat_vb": 67.3,
+    "mempool_size_bytes": 5502084.214285715,
+    "mempool_tx_count": 6687.214285714285
+  },
+  {
+    "week_start": "2022-12-05",
+    "price_usd": 17070.60142857143,
+    "price_7d_avg": 17070.60142857143,
+    "price_30d_avg": 16737.525161290323,
+    "volatility_24h_pct": 1.0067253322872631,
+    "fee_proxy_sat_vb": 44.4,
+    "mempool_size_bytes": 8004195.357142857,
+    "mempool_tx_count": 3164.8571428571427
+  },
+  {
+    "week_start": "2022-12-12",
+    "price_usd": 17236.802857142855,
+    "price_7d_avg": 17236.802857142855,
+    "price_30d_avg": 16831.28870967742,
+    "volatility_24h_pct": 1.9354883175725315,
+    "fee_proxy_sat_vb": 42.1,
+    "mempool_size_bytes": 2289675.5,
+    "mempool_tx_count": 4606.214285714285
+  },
+  {
+    "week_start": "2022-12-19",
+    "price_usd": 16762.947142857145,
+    "price_7d_avg": 16762.947142857145,
+    "price_30d_avg": 16910.825161290322,
+    "volatility_24h_pct": 0.9671798036812783,
+    "fee_proxy_sat_vb": 48.2,
+    "mempool_size_bytes": 2910452.9285714286,
+    "mempool_tx_count": 5289.785714285715
+  },
+  {
+    "week_start": "2022-12-26",
+    "price_usd": 16701.836666666666,
+    "price_7d_avg": 16701.836666666666,
+    "price_30d_avg": 16955.350333333332,
+    "volatility_24h_pct": 0.7004330650180692,
+    "fee_proxy_sat_vb": 54.2,
+    "mempool_size_bytes": 2573794.8333333335,
+    "mempool_tx_count": 4102.5
+  }
+]
