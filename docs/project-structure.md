@@ -2,17 +2,17 @@
 
 Directory layout for SteadyStack. Items marked ✓ are implemented; † marks stale/unused code pending cleanup; unmarked items are planned.
 
-Last updated: April 2026 (spec v1.0, post-pivot — see ADR-014).
+Last updated: April 2026 (spec v1.0, post-pivot — see ADR-015).
 
 The core design principle is **separation of concerns**: signal collection, policy rules, decision execution, and explanation generation are independent modules. Business logic never leaks into orchestration or API layers.
 
 ---
 
 ```
-BTCDCA/
+SteadyStack/
 ├── docs/                          # Project documentation
 │   ├── specification.md           # ✓ Product specification (v1.0)
-│   ├── architecture-decisions.md  # ✓ ADR log (ADR-001 through ADR-014)
+│   ├── architecture-decisions.md  # ✓ ADR log (ADR-001 through ADR-015)
 │   ├── project-structure.md       # ✓ This file
 │   ├── coding-standards.md        # ✓ Code style and conventions
 │   └── testing-strategy.md        # ✓ Test approach and coverage goals
@@ -50,7 +50,7 @@ BTCDCA/
 │   │   │   ├── tracker.py         # ✓ Tracks SteadyStack vs naive performance
 │   │   │   └── metrics.py         # ✓ Cost improvement, fee efficiency metrics
 │   │   │
-│   │   ├── backtest/              # ✓ Historical backtesting module (ADR-014)
+│   │   ├── backtest/              # ✓ Historical backtesting module (ADR-015)
 │   │   │   ├── __main__.py        # ✓ CLI entry point (python -m app.backtest)
 │   │   │   ├── data.py            # ✓ Blockchain.com API data fetcher with caching
 │   │   │   ├── runner.py          # ✓ Policy engine + accumulation backtest runners
@@ -123,7 +123,7 @@ BTCDCA/
 | `backend/app/policy/` | §2, ADR-008 | Deterministic scoring and profile evaluation |
 | `backend/app/engine/` | ADR-008 | Orchestrates the pipeline: signals → policy → decision → explanation |
 | `backend/app/comparison/` | §6 | Performance comparison logic (naive DCA baseline, metrics) |
-| `backend/app/backtest/` | ADR-014 | Historical backtesting: policy, accumulation, and fee-timing modes |
+| `backend/app/backtest/` | ADR-015 | Historical backtesting: policy, accumulation, and fee-timing modes |
 | `backend/app/api/` | — | REST endpoints: decisions, comparison, health |
 | `frontend/src/app/page.tsx` | §6 | 4-tab dashboard: Fees, Evidence, Projection, Infrastructure |
 | `frontend/src/components/FeeMonitorPanel.tsx` | §6 | Live fee advisory using backend signal data |

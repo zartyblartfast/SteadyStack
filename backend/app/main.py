@@ -12,7 +12,7 @@ from app.config import settings
 
 app = FastAPI(
     title="SteadyStack",
-    description="Smart, self-custodial Bitcoin DCA engine",
+    description="Fee-aware, non-custodial Bitcoin DCA platform",
     version="0.1.0",
     docs_url="/docs" if settings.app_debug else None,
     redoc_url="/redoc" if settings.app_debug else None,
@@ -20,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js dev server
+    allow_origins=["http://localhost:3002"],  # Next.js dev server (BFF proxy handles most calls; CORS needed for any direct browser→backend requests)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

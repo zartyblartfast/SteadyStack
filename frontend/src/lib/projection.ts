@@ -7,8 +7,8 @@
  * Growth rates are annualised compound rates that taper over long
  * horizons, loosely informed by Bitcoin's historical power-law trend.
  *
- * SteadyStack edge is modelled as a modest cost-per-BTC improvement
- * (backed by the comparison module's demonstrated 3-5% advantage).
+ * SteadyStack edge is modelled as a modest fee-savings improvement
+ * (~0.5-1.5% fee savings, backed by 330-week backtest — see ADR-015).
  *
  * All computation is client-side — no API calls needed.
  */

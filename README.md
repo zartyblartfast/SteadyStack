@@ -65,7 +65,7 @@ We backtested 330 weeks of historical data (2020–2026). The honest conclusion:
 ## Project Structure
 
 ```
-BTCDCA/
+SteadyStack/
 ├── docs/                  # Specification, ADRs, project structure
 ├── backend/               # Python + FastAPI backend
 │   └── app/
@@ -117,7 +117,8 @@ cd SteadyStack/backend
 python -m venv .venv
 .venv\Scripts\activate       # Windows
 # source .venv/bin/activate  # macOS/Linux
-pip install -r requirements.txt
+pip install -e ".[dev]"     # installs app + test dependencies
+# or: pip install .          # production only
 
 # Run the API server
 uvicorn app.main:app --reload --port 8000
@@ -139,12 +140,14 @@ npx next dev -p 3002
 npm run build
 ```
 
-### Full Stack (Docker — coming soon)
+### Backing Services (Postgres, Redis)
 
 ```bash
 cp .env.example .env
-docker compose up
+docker compose -f docker-compose.dev.yml up
 ```
+
+This starts only the database and cache services. The backend and frontend are run directly (see above). Full-stack Docker orchestration is a future item.
 
 ## License
 

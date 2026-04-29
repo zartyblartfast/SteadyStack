@@ -335,6 +335,8 @@ The original project structure (`project-structure.md`) envisioned a multi-route
 
 ## ADR-014: Next.js API Proxy Routes (BFF Pattern)
 
+*(Originally numbered ADR-014; ADR-013 is Single-Page Dashboard)*
+
 **Date:** April 2026  
 **Status:** Accepted
 
@@ -352,7 +354,6 @@ The frontend needs to communicate with the FastAPI backend. Options considered: 
 **Implementation:**
 - `src/app/api/decisions/run/route.ts` → POST to backend `/api/decisions/run`
 - `src/app/api/decisions/profiles/route.ts` → GET to backend `/api/decisions/profiles`
-- `src/app/api/comparison/simulate/route.ts` → POST to backend `/api/comparison/simulate`
 - `src/app/api/health/route.ts` → GET to backend `/health`
 
 **Trade-offs:**
@@ -363,7 +364,7 @@ The frontend needs to communicate with the FastAPI backend. Options considered: 
 
 ---
 
-## ADR-014: Product Pivot — Fee-Aware DCA Platform (Not Smart Timing)
+## ADR-015: Product Pivot — Fee-Aware DCA Platform (Not Smart Timing)
 
 **Date:** April 2026  
 **Status:** Accepted

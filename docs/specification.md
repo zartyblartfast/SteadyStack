@@ -170,7 +170,7 @@ Fees are collected via **Lightning invoice** at the end of each month.
 - Projection tab — What If DCA tool with fee-savings overlay (§6.1)
 - Infrastructure tab — Knots/DATUM/BIP 110 educational content
 - Backtesting module — CLI with policy, accumulation, and fee-timing modes
-- 68 backend tests passing
+- Backend test suite passing (run `pytest` to verify)
 
 **Not Yet Built (MVP scope):**
 - Watch-only wallet integration (Sparrow, Electrum, hardware wallets)

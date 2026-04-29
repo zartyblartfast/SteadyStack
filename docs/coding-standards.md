@@ -115,7 +115,7 @@ class StaleDataError(SignalFetchError):
 - **Strict TypeScript** — `strict: true` in `tsconfig.json`. No `any` types without an explicit comment explaining why.
 - **React components** — functional components only, named exports.
 - **API client** — all backend calls go through a single API client in `lib/api.ts`. Components never call `fetch` directly.
-- **Styling** — Tailwind CSS utility classes. No inline styles. Shared component library via shadcn/ui.
+- **Styling** — Tailwind CSS v4 utility classes. No inline styles. Icons via Lucide.
 - **State** — prefer server components where possible. Client state via React hooks. No global state library unless complexity demands it.
 
 ---
@@ -141,9 +141,8 @@ def test_skip_when_fees_above_threshold():
 
 ### Frontend
 
-- **Vitest** for unit tests.
-- **Component tests** for any component with non-trivial logic.
-- **E2E tests** (Playwright) added when the dashboard is functional — not needed in early phases.
+- No frontend test framework installed yet. **Vitest** to be added when component logic warrants testing.
+- **E2E tests** (Playwright) to be added when the dashboard is functional — not needed in early phases.
 
 ---
 
