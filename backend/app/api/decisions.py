@@ -65,6 +65,10 @@ async def run_decision(request: RunPipelineRequest) -> DecisionResponse:
         snapshot_summary = {
             "price_usd": decision.snapshot.price_usd,
             "fee_rate_sat_vb": decision.snapshot.fee_rate_sat_vb,
+            "fastest_fee": decision.snapshot.fastest_fee,
+            "half_hour_fee": decision.snapshot.half_hour_fee,
+            "hour_fee": decision.snapshot.hour_fee,
+            "economy_fee": decision.snapshot.economy_fee,
             "volatility_24h_pct": decision.snapshot.volatility_24h_pct,
             "price_7d_avg": decision.snapshot.price_7d_avg,
             "mempool_depth_mb": decision.snapshot.mempool_depth_mb,

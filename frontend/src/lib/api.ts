@@ -16,6 +16,10 @@ export interface DecisionResponse {
   snapshot_summary: {
     price_usd: number | null;
     fee_rate_sat_vb: number | null;
+    fastest_fee: number | null;
+    half_hour_fee: number | null;
+    hour_fee: number | null;
+    economy_fee: number | null;
     volatility_24h_pct: number | null;
     price_7d_avg: number | null;
     mempool_depth_mb: number | null;
@@ -56,6 +60,28 @@ export async function getProfiles(): Promise<
   if (!res.ok) throw new Error(`Profiles API error: ${res.status}`);
   const data = await res.json();
   return data.profiles;
+}
+
+export interface FeeHistoryEntry {
+  avgHeight: number;
+  timestamp: number;
+  avgFee_0: number;
+  avgFee_10: number;
+  avgFee_25: number;
+  avgFee_50: number;
+  avgFee_75: number;
+  avgFee_90: number;
+  avgFee_100: number;
+}
+
+export type FeeHistoryPeriod = "24h" | "3d" | "1w" | "1m" | "3m" | "6m" | "1y" | "2y" | "3y";
+
+export async function fetchFeeHistory(
+  period: FeeHistoryPeriod = "1w"
+): Promise<FeeHistoryEntry[]> {
+  const res = await fetch(`${API_BASE}/api/fees/history/${period}`);
+  if (!res.ok) throw new Error(`Fee history API error: ${res.status}`);
+  return res.json();
 }
 
 export async function healthCheck(): Promise<boolean> {

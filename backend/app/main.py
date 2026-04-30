@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.comparison import router as comparison_router
 from app.api.decisions import router as decisions_router
+from app.api.fees import router as fees_router
 from app.api.health import router as health_router
 from app.config import settings
 
@@ -28,4 +29,5 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(decisions_router)
+app.include_router(fees_router)
 app.include_router(comparison_router)

@@ -12,7 +12,7 @@ Build a **self-sovereign Bitcoin accumulation platform** that makes disciplined 
 SteadyStack does not try to outsmart Bitcoin's price. Backtesting over 330 weeks of historical data (2020–2026) confirmed that no mechanical timing strategy reliably beats naive weekly DCA on cost basis. Instead, the platform focuses on what demonstrably works: **consistent accumulation**, **fee minimisation**, **self-custody**, and **education**.
 
 **Core Promise:**  
-The easiest way to DCA into Bitcoin properly — automated, fee-aware, non-custodial, and optionally backed by your own Bitcoin infrastructure.
+The easiest way to DCA into Bitcoin properly — automated, fee-aware, non-custodial, and backed by real data.
 
 ### 1.1 Pillars of Value
 
@@ -20,11 +20,9 @@ The easiest way to DCA into Bitcoin properly — automated, fee-aware, non-custo
 
 2. **Fee-aware DCA** — Monitors mempool conditions to help users buy during low-fee windows. On-chain fees are expected to rise structurally as block subsidies halve, making fee timing increasingly valuable over time.
 
-3. **Best-practice education** — Shows users, with historical data, why simple DCA works, why market timing mostly fails, why fee minimisation matters, and why UTXO health and self-custody matter. The product is part tool, part dashboard, part educational proof engine.
+3. **Best-practice education** — Shows users, with historical data, why simple DCA works, why market timing mostly fails, and why fee minimisation matters. The product is part tool, part dashboard, part educational proof engine.
 
-4. **Node / Knots / DATUM infrastructure** — For more serious Bitcoin users: self-sovereign infrastructure alignment, node-connected workflows, DATUM gateway support, block template / policy alignment (BIP 110). This differentiates SteadyStack from mainstream DCA apps that are exchange wrappers.
-
-5. **Honest positioning** — We tested the data. Simple DCA wins. Fee savings are real but modest today. Automation and sovereignty are the main wins. This transparency is a commercial advantage in a space full of "AI trading" nonsense.
+4. **Honest positioning** — We tested the data. Simple DCA wins. Fee savings are real but modest today. Automation and consistency are the main wins. This transparency is a commercial advantage in a space full of "AI trading" nonsense.
 
 ## 2. Design Principles
 
@@ -34,48 +32,70 @@ The easiest way to DCA into Bitcoin properly — automated, fee-aware, non-custo
 - **Transparency by default**: Users always see how the engine performed compared to a standard scheduled DCA strategy. No black boxes.
 - **Honesty over hype**: The platform does not claim to beat the market. It claims to help users DCA efficiently while avoiding unnecessary fee drag. All performance claims are backed by historical data.
 
-## 3. User Flow (Happy Path)
+## 3. User Flows
 
-1. User connects a **watch-only wallet** (Sparrow, Electrum, hardware wallet, etc.).
-2. Chooses or customizes a **DCA strategy profile**.
-3. Sets monthly budget and preferred payout address.
-4. The engine begins monitoring market conditions and sends clear notifications with reasoning.
-5. User is notified of the recommended buy and may act on it manually. Optionally, the user can acknowledge, dismiss, or mark a recommendation as acted on.
-6. User views **performance comparison** against naive weekly DCA on their dashboard.
+**Free tier (manual):**
+1. User opens SteadyStack dashboard — no account required.
+2. Checks current fee conditions ("are fees low right now?").
+3. Explores backtesting evidence and projection tools.
+4. Decides when to buy and executes the buy themselves on their preferred platform.
+
+**Automated tier:**
+1. User creates account (Lightning login) and chooses a DCA profile (budget, frequency, fee sensitivity).
+2. **Notification Mode**: Engine monitors fees and sends alerts when conditions are good. User buys wherever they prefer and optionally confirms the buy in the dashboard.
+3. **Auto Mode**: User connects a Kraken API key (trade-only). Engine places buys automatically during low-fee windows, with or without per-buy approval depending on user preference.
+4. User views **performance comparison** against naive weekly DCA on their dashboard.
 
 ## 4. How Buying Actually Works
 
-### 4.1 Advisory Mode (Default – MVP)
-- The engine **recommends** optimal buy times and amounts based on deterministic rules.
-- User receives a notification (Telegram + in-app) with the recommendation and full reasoning.
-- The user decides whether to act and places the buy themselves using their own wallet or exchange. The app does not place the buy.
-- The user may optionally acknowledge, dismiss, or mark a recommendation as acted on within the dashboard.
-- The engine **never** has access to funds or private keys.
+### 4.1 Manual Mode (Free tier)
+- The app shows whether fees are low/medium/high and advises whether now is a good time to buy.
+- The user places any buy themselves using their own wallet or exchange. The app does not place the buy.
+- Includes full access to backtesting evidence, projection tool, and educational content.
+- No account required. No automation. No notifications.
 
-### 4.2 Auto Mode — Approval Required (Pro tier, post-MVP)
+### 4.2 Notification Mode (Automated tier)
+- The engine monitors fees on a schedule and identifies optimal buy windows within each DCA period.
+- The engine **sends a notification** (Telegram + in-app) with the recommendation and full reasoning.
+- The user decides whether to act — they can buy on any exchange or service they prefer.
+- The user optionally confirms the buy in the dashboard for tracking purposes.
+- This mode works for users who want fee-timing intelligence but prefer to execute buys themselves (e.g. via Relai, RoboSats, or any other service).
+
+### 4.3 Auto Mode — Approval Required (Automated tier)
 - User connects an exchange API key with **trading permissions only** (no withdrawal rights).
-- The engine determines a buy opportunity and sends the recommendation to the user.
+- The engine identifies the best buy window and **sends a notification** with the recommendation.
 - The engine **waits for explicit user approval** before placing the buy on the connected exchange.
 - Every execution is logged with full reasoning and confirmation details.
 
-### 4.3 Auto Mode — Notifications Only (Pro tier, post-MVP)
+### 4.4 Auto Mode — Fully Automated (Automated tier)
 - User connects an exchange API key with **trading permissions only** (no withdrawal rights).
-- The engine determines a buy opportunity and **places the buy automatically** within strict user-defined limits.
+- The engine determines the best buy window and **places the buy automatically** within strict user-defined limits (max amount, max fee rate, etc.).
 - The user is immediately notified with the reasoning and execution details after the buy is placed.
 - All actions are logged and fully auditable in the dashboard.
 
-**Important Principle:** The tool will **never** hold user Bitcoin or have withdrawal access.
+### 4.5 Funding & Balance Management (Auto Modes only)
+- Before placing any automated buy, the engine checks the exchange account balance.
+- **Sufficient funds**: Proceed with buy.
+- **Insufficient funds**: Skip the buy, notify the user immediately ("Your balance is $X — not enough for your $Y weekly DCA. Please deposit funds.").
+- **Low balance warning**: After each successful buy, check remaining balance against upcoming DCA schedule and warn proactively (e.g. "You have ~2 weeks of DCA remaining").
+- The engine **never** auto-deposits, reduces buy amounts silently, or takes any action on insufficient funds other than notifying the user.
+
+### 4.6 Exchange Support
+- **Launch**: Kraken (respected in Bitcoin community, excellent API, supports auto-withdraw to user's own wallet).
+- **Future**: Pluggable exchange adapter architecture allows adding support for additional exchanges (e.g. Coinbase Advanced, Binance) and fiat-to-Bitcoin services (e.g. Relai) as their APIs mature.
+- Users who prefer not to use any exchange integration can use Notification Mode (§4.2) and buy wherever they choose.
+
+**Important Principle:** The tool will **never** hold user Bitcoin or have withdrawal access. Exchange API keys are stored encrypted (Fernet) and are restricted to trade-only permissions.
 
 ## 5. Trust & Security Model
 
 - **No custody**: The tool never holds, controls, or has access to user Bitcoin.
-- **No private keys**: Only watch-only wallet descriptors are stored. Private keys never touch the system.
+- **No private keys**: Private keys never touch the system.
 - **No withdrawal permissions**: Exchange API keys are validated to ensure withdrawal rights are not granted. Keys with withdrawal permissions are rejected.
 - **Encrypted API key storage**: All exchange API keys are encrypted at rest using per-user encryption keys.
 - **Audit logging**: Every recommendation, execution, skip, retry, and error is logged with a timestamp, the input signals, the rules evaluated, and the outcome. Logs are immutable and user-accessible.
 - **User revocation**: Users can revoke exchange API access at any time. Revocation takes effect immediately and disables all pending auto-buy actions.
 - **Degraded mode safety**: If data sources are unavailable or stale, the engine reduces confidence and falls back to manual recommendation. It will never execute a buy with insufficient data.
-- **Watch-only in practice**: The system imports an xpub or output descriptor. It can monitor balances and UTXOs but cannot construct signed transactions. PSBT support allows the engine to prepare unsigned transactions that the user signs externally with their hardware wallet or signing device.
 
 ## 6. Performance Comparison & Fee Dashboard
 
@@ -83,7 +103,6 @@ Every user's dashboard shows a **live comparison** of their SteadyStack performa
 
 - **Fee efficiency**: Total fees paid as a percentage of volume — the primary measurable edge
 - **Average acquisition cost**: SteadyStack vs fixed weekly buy
-- **UTXO health score**: Fragmentation and consolidation status
 - **Fee savings**: Absolute and percentage savings from buying during low-fee windows
 
 The baseline is calculated using the same budget and time period, assuming a fixed weekly buy at market price with average mempool fees. This comparison is always visible and cannot be hidden — it's core to the trust model.
@@ -102,7 +121,8 @@ These findings inform the product's positioning: SteadyStack optimises for fee e
 ### 6.0.2 Evidence Dashboard
 
 The Evidence tab presents backtesting findings to users:
-- **Strategy comparison chart**: Horizontal bar chart showing edge (%) of each timing strategy vs naive DCA — clearly demonstrating that price timing fails and fee timing works
+
+- **Strategy comparison chart**: Vertical bar chart showing edge (%) of each timing strategy, with Naive Weekly DCA as a prominent dashed baseline reference line at 0% — clearly demonstrating that price timing fails and fee timing works
 - **Strategy detail cards**: For each strategy tested, shows the edge, description, and verdict
 - **Intra-week fee variation stats**: 330-week analysis of within-week fee ranges (avg 2.1x, 34% of weeks ≥2x)
 - **Halving fee projection table**: Projected fee savings per halving epoch as block subsidy declines
@@ -113,22 +133,26 @@ The Evidence tab presents backtesting findings to users:
 A client-side DCA projection tool that lets users visualise how a consistent Bitcoin DCA strategy could grow over time. All computation happens in the browser — no backend API calls required.
 
 **User inputs:**
+
 - Monthly DCA amount (presets: $50–$5,000 + custom)
 - Duration (1, 2, 5, 10, or 20 years)
 - Fee savings estimate (Conservative ~0.5%, Balanced ~1%, Aggressive ~1.5%)
 
 **Projection model:**
+
 - Three growth scenarios: Bear (~5% CAGR tapering to ~3%), Base (~28% tapering to ~15%), Bull (~50% tapering to ~25%)
 - Growth rates taper over long horizons to stay conservative
 - SteadyStack advantage modelled as fee savings only — a percentage of each buy that would otherwise be lost to transaction fees. These values are informed by backtesting against 330 weeks of historical data.
 - Each scenario shows both SteadyStack-optimised and naive DCA lines
 
 **Visualizations:**
+
 - Area chart with three coloured scenario bands + dashed naive DCA overlay + invested baseline
 - Summary cards showing projected USD value (hero), BTC accumulated, ROI %, and extra sats vs naive DCA
 - Interactive tooltip with per-scenario breakdown at any point on the timeline
 
 **Safeguards:**
+
 - "Not financial advice" disclaimer with clear caveats about model limitations
 - Info panel explaining why bear case shows more BTC than bull (DCA into rising asset dynamics)
 - Conservative growth assumptions that taper over time
@@ -144,22 +168,31 @@ A client-side DCA projection tool that lets users visualise how a consistent Bit
 - Feedback includes an optional performance snapshot (anonymised) showing the user's SteadyStack vs naive DCA comparison at time of submission.
 - Users can request removal of their published testimonial at any time.
 
-## 8. Ocean / DATUM Integration (Optional, post-MVP)
+## 8. Pricing Model
 
-Ocean and DATUM are **optional power-user features**:
-- Users who run their own Bitcoin Knots node can connect their personal DATUM gateway.
-- In this mode, any separately rented hashrate can use block templates generated by the user's own node (including optional BIP 110 signaling).
+Tiers are defined by **features, not volume**. Paid tiers charge a small percentage of DCA volume, which scales naturally with usage and covers hosting costs.
 
-## 9. Pricing Model
+### Free Tier
+- Manual fee checking ("are fees low right now?")
+- Backtesting evidence dashboard
+- What-If DCA projection tool
+- Educational content
+- No account required, no automation, no notifications
 
-- **Free Tier**: Up to **$500** monthly DCA volume  
-  - Basic intelligent timing and preset profiles
-- **Pro Tier**: Unlimited volume  
-  - Fee: **0.5%** of monthly DCA volume, **capped at $25/month**
+### Automated Tier
+- Everything in Free, plus:
+- Scheduled fee monitoring + push notifications (Telegram, in-app)
+- Notification Mode: fee alerts so user can buy wherever they prefer (§4.2)
+- Auto Mode: exchange API buy execution — approval-required or fully automated (§4.3, §4.4)
+- Balance monitoring and low-funds alerts (§4.5)
+- DCA history tracking and performance dashboard
+- **Fee: ~0.3–0.5% of DCA volume**
 
-Fees are collected via **Lightning invoice** at the end of each month.
+Fees are collected via **Lightning invoice** at the end of each billing period. The percentage model means revenue scales with usage — users who DCA more contribute proportionally more to hosting costs.
 
-## 10. MVP Features
+**Design principle:** Cost-covering, not profit-maximising. The goal is sustainable operation, not extraction.
+
+## 9. MVP Features
 
 **Built (v0.2):**
 - Fee-aware advisory engine (mempool monitoring, buy/wait recommendation)
@@ -168,42 +201,43 @@ Fees are collected via **Lightning invoice** at the end of each month.
 - Fee Monitor tab — live fee checking with buy/wait advisory
 - Evidence tab — backtesting results proving DCA works, fee timing saves money
 - Projection tab — What If DCA tool with fee-savings overlay (§6.1)
-- Infrastructure tab — Knots/DATUM/BIP 110 educational content
+- Infrastructure tab — Bitcoin sovereignty educational content
 - Backtesting module — CLI with policy, accumulation, and fee-timing modes
 - Backend test suite passing (run `pytest` to verify)
 
-**Not Yet Built (MVP scope):**
-- Watch-only wallet integration (Sparrow, Electrum, hardware wallets)
-- Advisory Mode notification workflow (Telegram + in-app)
-- Lightning login
-- User feedback submission
+**Not Yet Built (MVP — completing Free tier):**
 - Database integration (models defined, not connected)
+- Lightning login (LNURL-auth — account without email/password)
+- User feedback submission
 
-**Post-MVP (v0.3+):**
-- Auto Mode — Approval Required (exchange execution after user approval)
-- Auto Mode — Notifications Only (automatic execution within strict limits)
-- UTXO health monitoring and consolidation
-- Self-hosted Knots + DATUM gateway connection
-- On-chain transparency reports
+**v0.3 — Automated Tier foundations:**
+- Scheduled fee monitoring (Celery tasks checking mempool periodically)
+- Telegram notifications ("fees are low — good time to buy")
+- DCA history tracking and performance dashboard
 
-## 11. Data Sources
+**v0.4+ — Exchange Automation:**
+- Kraken exchange adapter (buy execution + balance checking + auto-withdraw)
+- Auto Mode — Approval Required (exchange API execution after user approval)
+- Auto Mode — Fully Automated (execution within strict user-defined limits)
+- Additional exchange adapters as demand warrants
+
+## 10. Data Sources
 
 - **Mempool fees & congestion**: mempool.space API (with aggressive caching and fallback)
 - **Price data & moving averages**: CoinGecko + Binance public API
-- **On-chain metrics**: mempool.space + optional self-hosted Electrum server
 - **Volatility & momentum**: Calculated internally from price history
 
 Rate limiting is handled with caching and backoff strategies.
 
-## 12. Error Handling & Graceful Degradation
+## 11. Error Handling & Graceful Degradation
 
 - Stale mempool data → Use last known good data with reduced confidence score
 - Telegram unreachable → Log decision and show prominently in dashboard
-- Exchange API failure (Auto Mode only, post-MVP) → Fall back to Advisory Mode and notify user
+- Exchange API failure (Auto Mode only, post-MVP) → Fall back to Notification Mode and notify user
 - Failed buys are clearly logged with appropriate retry logic where safe
 - The engine will never silently fail or make unlogged decisions
 
-## 13. Technical Architecture
+## 12. Technical Architecture
 
 **Currently running (local development):**
 - **Frontend**: Next.js 16 + React 19 + Tailwind v4 + Recharts 3
@@ -218,10 +252,9 @@ Rate limiting is handled with caching and backoff strategies.
 - **Deployment**: TBD
 - **Database**: PostgreSQL (models defined in code, DB not running)
 - **Task Scheduling**: Celery + Redis (docker-compose.dev.yml ready)
-- **Bitcoin Integration**: Electrum RPC (watch-only) + PSBT
-- **Exchange Integration**: Pluggable abstraction layer (Kraken, Coinbase Advanced, Binance, etc.)
+- **Exchange Integration**: Pluggable adapter — Kraken first, others as demand warrants
 
-## 14. Success Metrics for MVP
+## 13. Success Metrics for MVP
 
 - **Fee efficiency**: Users pay measurably lower transaction fees than fixed-day weekly buys. Backtesting shows ~1–2% fee savings at current levels, increasing with each halving.
 - **Consistency**: Users maintain their DCA schedule for ≥90 days without skipping a week. The platform's primary value is keeping users accumulating, especially during bear markets.

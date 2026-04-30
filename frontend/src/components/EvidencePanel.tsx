@@ -10,6 +10,8 @@ import {
   ResponsiveContainer,
   Cell,
   CartesianGrid,
+  ReferenceLine,
+  LabelList,
 } from "recharts";
 import {
   TrendingUp,
@@ -109,10 +111,12 @@ function Accordion({
 export default function EvidencePanel() {
   const [showMethodology, setShowMethodology] = useState(false);
 
-  const chartData = TIMING_STRATEGIES.map((s) => ({
-    name: s.name.length > 20 ? s.name.slice(0, 18) + "…" : s.name,
-    fullName: s.name,
+  // Only actual strategies in chart; Naive DCA becomes the reference line
+  const chartData = TIMING_STRATEGIES.filter((s) => s.edge !== 0).map((s) => ({
+    name: s.name,
+    shortName: s.name,
     edge: s.edge,
+    label: `${s.edge > 0 ? "+" : ""}${s.edge}%`,
     fill:
       s.edge > 0.5
         ? CHART_COLOURS.positive
@@ -191,21 +195,21 @@ export default function EvidencePanel() {
 
       {/* Strategy comparison chart */}
       <Accordion title="Timing Strategies vs Naive DCA" defaultOpen={true}>
-        <div className="h-64 mt-2">
+        <div className="h-72 mt-2">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" horizontal={false} />
+            <BarChart data={chartData} margin={{ top: 24, right: 16, bottom: 8, left: 16 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e2a3a" vertical={false} />
               <XAxis
-                type="number"
+                dataKey="shortName"
+                tick={{ fill: "#e2e8f0", fontSize: 11 }}
+                stroke="#1e2a3a"
+                interval={0}
+              />
+              <YAxis
                 tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v}%`}
                 stroke="#64748b"
                 fontSize={12}
-              />
-              <YAxis
-                dataKey="name"
-                type="category"
-                width={160}
-                tick={{ fill: "#e2e8f0", fontSize: 12 }}
+                domain={[-38, 5]}
               />
               <Tooltip
                 contentStyle={{
@@ -219,14 +223,36 @@ export default function EvidencePanel() {
                   "Edge vs Naive DCA",
                 ]}
                 labelFormatter={(_label, payload) => {
-                  const item = payload?.[0]?.payload as { fullName?: string } | undefined;
-                  return item?.fullName ?? "";
+                  const item = payload?.[0]?.payload as { name?: string } | undefined;
+                  return item?.name ?? "";
                 }}
               />
-              <Bar dataKey="edge" radius={[0, 4, 4, 0]}>
+              <ReferenceLine
+                y={0}
+                stroke="#f59e0b"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                label={{
+                  value: "── Naive Weekly DCA (Baseline)",
+                  position: "insideBottomLeft",
+                  fill: "#f59e0b",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  offset: 6,
+                }}
+              />
+              <Bar dataKey="edge" radius={[4, 4, 0, 0]} maxBarSize={120}>
                 {chartData.map((entry, i) => (
                   <Cell key={i} fill={entry.fill} />
                 ))}
+                <LabelList
+                  dataKey="label"
+                  position="top"
+                  fill="#e2e8f0"
+                  fontSize={12}
+                  fontWeight={700}
+                  offset={8}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
