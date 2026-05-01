@@ -10,13 +10,14 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Calculator, TrendingUp, AlertTriangle, Info, X } from "lucide-react";
+import { Calculator, TrendingUp, AlertTriangle, Info, X, LineChart as LineChartIcon } from "lucide-react";
+import { LineChart, Line } from "recharts";
 import { computeProjection, SS_EDGE_BY_PROFILE } from "@/lib/projection";
 
 const PROFILE_OPTIONS = [
-  { label: "Conservative", value: "conservative", desc: "~0.5% fee savings" },
-  { label: "Balanced", value: "balanced", desc: "~1% fee savings" },
-  { label: "Aggressive", value: "aggressive", desc: "~1.5% fee savings" },
+  { label: "Low Fee (1 sat/vB)", value: "aggressive", desc: "~1.5% saving, longer wait" },
+  { label: "Mid Fee (3 sats/vB)", value: "balanced", desc: "~1% saving, ~1hr wait" },
+  { label: "Higher Fee (5 sats/vB)", value: "conservative", desc: "~0.5% saving, fast confirm" },
 ];
 
 const DURATION_OPTIONS = [
@@ -128,6 +129,24 @@ export default function WhatIfPanel() {
     (summary.baseSS.btc - summary.base.btc) * 1e8
   );
 
+  // Savings spotlight: compute per-scenario savings
+  const savingsData = (["bear", "base", "bull"] as const).map((key) => {
+    const ss = summary[`${key}SS` as keyof typeof summary] as { btc: number; usd: number };
+    const naive = summary[key] as { btc: number; usd: number };
+    const extraSats = Math.round((ss.btc - naive.btc) * 1e8);
+    const extraUsd = ss.usd - naive.usd;
+    const monthlySats = Math.round(extraSats / (duration * 12));
+    return { key, extraSats, extraUsd, monthlySats };
+  });
+
+  // Cumulative savings delta chart data (sats saved over time)
+  const deltaChartData = points.map((p) => ({
+    year: p.year,
+    bear: Math.round((p.bearSS.btc - p.bear.btc) * 1e8),
+    base: Math.round((p.baseSS.btc - p.base.btc) * 1e8),
+    bull: Math.round((p.bullSS.btc - p.bull.btc) * 1e8),
+  }));
+
   if (!mounted) {
     return (
       <div className="space-y-6">
@@ -211,10 +230,10 @@ export default function WhatIfPanel() {
           </div>
         </div>
 
-        {/* Fee savings profile */}
+        {/* Fee target strategy */}
         <div className="space-y-2">
           <label className="text-xs font-medium uppercase tracking-wider text-muted">
-            Fee Savings Estimate
+            Fee Target Strategy
           </label>
           <div className="flex flex-wrap gap-2">
             {PROFILE_OPTIONS.map((opt) => (
@@ -235,13 +254,51 @@ export default function WhatIfPanel() {
         </div>
       </div>
 
+      {/* Savings spotlight cards */}
+      <div className="rounded-xl border border-accent/20 bg-accent/5 p-5">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-accent mb-4 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4" />
+          SteadyStack Savings — {PROFILE_OPTIONS.find((o) => o.value === profile)?.label ?? profile} ({(ssEdge * 100).toFixed(1)}% edge)
+        </h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {([{ idx: 0, label: "Bear Market", sub: "Low fees, less saving opportunity", color: "text-red-400", mult: "0.6×" }, { idx: 1, label: "Base Market", sub: "Typical fees, baseline saving", color: "text-accent", mult: "1.0×" }, { idx: 2, label: "Bull Market", sub: "High fees, more saving opportunity", color: "text-success", mult: "1.5×" }] as const).map(({ idx, label, sub, color, mult }) => {
+            const s = savingsData[idx];
+            return (
+              <div key={s.key} className="rounded-lg border border-card-border bg-card p-4">
+                <p className={`text-xs font-medium uppercase tracking-wider ${color}`}>{label}</p>
+                <p className="text-[10px] text-muted mb-2">{sub}</p>
+                <p className="text-2xl font-bold tabular-nums text-accent">
+                  +{s.extraSats.toLocaleString()}
+                  <span className="text-sm font-normal text-muted ml-1">sats</span>
+                </p>
+                <p className="text-xs text-muted mt-1">
+                  ≈ {formatUsd(s.extraUsd)} extra value
+                </p>
+                <p className="text-xs text-muted mt-1">
+                  ~{s.monthlySats.toLocaleString()} sats/month avg saving
+                </p>
+                <p className="text-[10px] text-muted/70 mt-1">
+                  Fee edge: {mult} base rate
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-muted mt-3 leading-relaxed">
+          <strong className="text-foreground/70">Why do savings vary?</strong>{" "}
+          In a bull market, higher BTC prices mean fewer sats per buy — but network congestion pushes fees up,
+          creating more opportunities to save by targeting low-fee windows (1.5× edge).
+          In a bear market, fees are already low, so there&apos;s less room to save (0.6× edge) — but each buy gets you more sats.
+        </p>
+      </div>
+
       {/* Chart */}
       <div className="rounded-xl border border-card-border bg-card p-5">
         <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted">
           Projected Portfolio Value (SteadyStack-optimised)
         </h3>
         <p className="mb-4 text-xs text-muted">
-          ${monthlyAmount.toLocaleString()}/mo for {duration} year{duration !== 1 ? "s" : ""} — {profile} strategy ({(ssEdge * 100).toFixed(0)}% edge)
+          ${monthlyAmount.toLocaleString()}/mo for {duration} year{duration !== 1 ? "s" : ""} — {PROFILE_OPTIONS.find((o) => o.value === profile)?.label ?? profile} ({(ssEdge * 100).toFixed(1)}% edge)
         </p>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 4, left: 10 }}>
@@ -415,17 +472,60 @@ export default function WhatIfPanel() {
         })}
       </div>
 
-      {/* SteadyStack fee savings callout */}
-      <div className="rounded-lg border border-accent/20 bg-accent/5 p-4 flex items-start gap-3">
-        <TrendingUp className="h-5 w-5 text-accent mt-0.5 shrink-0" />
-        <div className="text-sm">
-          <p className="font-semibold text-accent">Fee Savings</p>
-          <p className="text-foreground/80 mt-1">
-            By monitoring mempool conditions and buying during low-fee windows, SteadyStack could save
-            approximately <strong className="text-accent">{ssEdgeSats.toLocaleString()} extra sats</strong> over {duration} year{duration !== 1 ? "s" : ""} compared
-            to fixed-day weekly DCA — based on ~{(ssEdge * 100).toFixed(1)}% estimated fee savings ({profile}).
-            This edge grows as on-chain fees rise with each halving.
-          </p>
+      {/* Cumulative savings delta chart */}
+      <div className="rounded-xl border border-card-border bg-card p-5">
+        <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2">
+          <LineChartIcon className="h-4 w-4" />
+          Cumulative Extra Sats (SteadyStack vs Naive DCA)
+        </h3>
+        <p className="mb-4 text-xs text-muted">
+          How many additional sats you accumulate over time by using fee-optimised timing
+        </p>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={deltaChartData} margin={{ top: 10, right: 10, bottom: 4, left: 10 }}>
+            <XAxis
+              dataKey="year"
+              type="number"
+              domain={[0, duration]}
+              ticks={Array.from({ length: Math.min(duration, 10) + 1 }, (_, i) =>
+                duration <= 10 ? i : Math.round((i * duration) / 10)
+              )}
+              tick={{ fill: "#64748b", fontSize: 11 }}
+              axisLine={{ stroke: "#1e2a3a" }}
+              tickLine={false}
+              tickFormatter={(v: number) => `${v}y`}
+            />
+            <YAxis
+              tick={{ fill: "#64748b", fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`}
+              width={45}
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0]?.payload;
+                if (!d) return null;
+                return (
+                  <div className="rounded-lg border border-card-border bg-card px-4 py-3 text-xs shadow-lg">
+                    <p className="font-semibold mb-1">Year {d.year}</p>
+                    <p className="text-success">Bull: +{d.bull.toLocaleString()} sats</p>
+                    <p className="text-accent">Base: +{d.base.toLocaleString()} sats</p>
+                    <p className="text-red-400">Bear: +{d.bear.toLocaleString()} sats</p>
+                  </div>
+                );
+              }}
+            />
+            <Line type="monotone" dataKey="bull" stroke="#22c55e" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="base" stroke="#f7931a" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="bear" stroke="#ef4444" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+        <div className="flex items-center gap-4 mt-2 text-[10px] text-muted">
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-0.5 bg-[#22c55e]" /> Bull</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-0.5 bg-[#f7931a]" /> Base</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-3 h-0.5 bg-[#ef4444]" /> Bear</span>
         </div>
       </div>
 

@@ -64,9 +64,18 @@ function monthlyFactor(annualRate: number): number {
 // These represent estimated transaction fee savings from mempool-aware timing,
 // NOT price-timing alpha. Values will increase as on-chain fees rise.
 export const SS_EDGE_BY_PROFILE: Record<string, number> = {
-  conservative: 0.005,  // ~0.5% fee savings
-  balanced: 0.01,       // ~1.0% fee savings
-  aggressive: 0.015,    // ~1.5% fee savings
+  conservative: 0.005,  // ~0.5% fee savings (base scenario)
+  balanced: 0.01,       // ~1.0% fee savings (base scenario)
+  aggressive: 0.015,    // ~1.5% fee savings (base scenario)
+};
+
+// In bull markets, higher network activity → higher fees → more opportunity
+// to save by timing. In bear markets, fees are low anyway → less edge.
+// These multipliers scale the base edge per scenario.
+const EDGE_MULTIPLIER: Record<string, number> = {
+  bear: 0.6,   // fees are low in bear markets, less room to save
+  base: 1.0,   // baseline — backtest conditions
+  bull: 1.5,   // bull markets bring congestion and higher fees
 };
 
 export function computeProjection(
@@ -103,10 +112,12 @@ export function computeProjection(
     btcBase += monthlyAmount / priceBase;
     btcBull += monthlyAmount / priceBull;
 
-    // SteadyStack: better cost basis means more BTC per buy
-    btcBearSS += (monthlyAmount / priceBear) * (1 + ssEdge);
-    btcBaseSS += (monthlyAmount / priceBase) * (1 + ssEdge);
-    btcBullSS += (monthlyAmount / priceBull) * (1 + ssEdge);
+    // SteadyStack: better cost basis means more BTC per buy.
+    // Edge scales with market scenario — bull markets have higher fees,
+    // creating more opportunities for fee-aware timing savings.
+    btcBearSS += (monthlyAmount / priceBear) * (1 + ssEdge * EDGE_MULTIPLIER.bear);
+    btcBaseSS += (monthlyAmount / priceBase) * (1 + ssEdge * EDGE_MULTIPLIER.base);
+    btcBullSS += (monthlyAmount / priceBull) * (1 + ssEdge * EDGE_MULTIPLIER.bull);
 
     // Record quarterly + final month for chart (keeps data manageable)
     if (m % 3 === 0 || m === totalMonths || m === 1) {
