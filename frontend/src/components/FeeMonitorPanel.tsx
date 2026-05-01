@@ -102,6 +102,34 @@ function formatTimestamp(ts: number, period: FeeHistoryPeriod): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
+function estimateWait(
+  target: number,
+  p10: number,
+  p50: number,
+  p90: number,
+  liveTiers?: { fastest?: number; halfHour?: number; hour?: number; economy?: number } | null
+): { label: string; colour: string } {
+  // If we have live fee tier data, use it for a more accurate estimate
+  if (liveTiers) {
+    const { fastest, halfHour, hour, economy } = liveTiers;
+    if (fastest && target >= fastest) return { label: "~10 min (next block)", colour: "#22c55e" };
+    if (halfHour && target >= halfHour) return { label: "~30 min", colour: "#22c55e" };
+    if (hour && target >= hour) return { label: "~1 hour", colour: "#22c55e" };
+    if (economy && target >= economy) return { label: "~1–6 hours", colour: "#f59e0b" };
+    return { label: "6h+ (may take a long time)", colour: "#ef4444" };
+  }
+
+  // Fallback: estimate from historical percentile data
+  const isBusy = p50 >= 20;
+
+  if (target >= p90) return { label: "~10 min (next block)", colour: "#22c55e" };
+  if (target >= p50) return { label: "~30 min", colour: "#22c55e" };
+  if (target >= p10) return { label: "~1–2 hours", colour: "#f59e0b" };
+  if (!isBusy) return { label: "~2–6 hours", colour: "#f59e0b" };
+  if (target >= p10 * 0.5) return { label: "~6–24 hours", colour: "#ef4444" };
+  return { label: "24h+ (may expire)", colour: "#ef4444" };
+}
+
 function localLowFeeWindow(): string {
   const fmt = (h: number) => {
     const d = new Date();
@@ -170,7 +198,7 @@ export default function FeeMonitorPanel() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [buyThreshold, setBuyThreshold] = useState(DEFAULT_BUY_THRESHOLD);
-  const waitThreshold = buyThreshold * 3;
+  const waitThreshold = buyThreshold + 5;
 
   useEffect(() => {
     if (loading) {
@@ -331,6 +359,20 @@ export default function FeeMonitorPanel() {
                 <p className="text-sm text-foreground/80 mt-1">
                   {advice.description}
                 </p>
+                {(() => {
+                  const liveTiers = {
+                    fastest: snap.fastest_fee ?? undefined,
+                    halfHour: snap.half_hour_fee ?? undefined,
+                    hour: snap.hour_fee ?? undefined,
+                    economy: snap.economy_fee ?? undefined,
+                  };
+                  const wait = estimateWait(buyThreshold, 0, 0, 0, liveTiers);
+                  return (
+                    <p className={`text-sm font-semibold mt-2 ${wait.colour === "#22c55e" ? "text-success" : wait.colour === "#f59e0b" ? "text-warning" : "text-danger"}`}>
+                      Estimated wait at {buyThreshold} sats/vB: {wait.label}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -519,21 +561,25 @@ export default function FeeMonitorPanel() {
                         label={{ value: "sats/vB", angle: -90, position: "insideLeft", fill: "#64748b", fontSize: 10, offset: 10 }}
                       />
                       <RechartsTooltip
-                        contentStyle={{
-                          background: "#131825",
-                          border: "1px solid #1e2a3a",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                        }}
-                        labelStyle={{ color: "#94a3b8" }}
-                        itemStyle={{ color: "#e2e8f0" }}
-                        formatter={(value, name) => {
-                          const labels: Record<string, string> = {
-                            median: "Median fee",
-                            high: "90th percentile",
-                            low: "10th percentile",
-                          };
-                          return [`${value} sats/vB`, labels[String(name)] ?? name];
+                        content={({ active, payload, label }) => {
+                          if (!active || !payload || payload.length === 0) return null;
+                          const d = payload[0]?.payload as { median: number; low: number; high: number } | undefined;
+                          if (!d) return null;
+                          return (
+                            <div style={{
+                              background: "#131825",
+                              border: "1px solid #1e2a3a",
+                              borderRadius: "8px",
+                              padding: "10px 12px",
+                              fontSize: "12px",
+                              lineHeight: "1.6",
+                            }}>
+                              <p style={{ color: "#94a3b8", marginBottom: 4 }}>{label}</p>
+                              <p style={{ color: "#e2e8f0" }}>90th percentile: <strong>{d.high}</strong> sats/vB</p>
+                              <p style={{ color: "#e2e8f0" }}>Median fee: <strong>{d.median}</strong> sats/vB</p>
+                              <p style={{ color: "#e2e8f0" }}>10th percentile: <strong>{d.low}</strong> sats/vB</p>
+                            </div>
+                          );
                         }}
                       />
                       {/* Buy zone: below the low threshold */}
@@ -550,15 +596,6 @@ export default function FeeMonitorPanel() {
                         strokeDasharray="6 3"
                         strokeWidth={1.5}
                       />
-                      {waitThreshold <= yAxisMax && (
-                        <ReferenceLine
-                          y={waitThreshold}
-                          stroke="#f59e0b"
-                          strokeDasharray="4 4"
-                          strokeWidth={1}
-                          label={{ value: `Wait (>${waitThreshold})`, position: "insideTopLeft", fill: "#f59e0b", fontSize: 10 }}
-                        />
-                      )}
                       <Area
                         type="monotone"
                         dataKey="high"
@@ -583,13 +620,12 @@ export default function FeeMonitorPanel() {
                         fill="transparent"
                         isAnimationActive={false}
                       />
-                      {/* Current fee as a horizontal marker */}
+                      {/* Current 1-hour fee rate as a horizontal marker */}
                       {feeRate !== null && (
                         <ReferenceLine
                           y={feeRate}
                           stroke="#3b82f6"
                           strokeWidth={2}
-                          label={{ value: `Now: ${feeRate} sats/vB`, position: "right", fill: "#3b82f6", fontSize: 10, fontWeight: 600 }}
                         />
                       )}
                     </AreaChart>
@@ -603,7 +639,7 @@ export default function FeeMonitorPanel() {
                     <span className="inline-block w-3 h-0.5 bg-[#64748b]" style={{ borderTop: "1px dashed #64748b" }} /> 10th–90th percentile
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-0.5 bg-[#3b82f6]" /> Current rate
+                    <span className="inline-block w-3 h-0.5 bg-[#3b82f6]" /> Current 1hr fee
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="inline-block w-3 h-2 bg-[#22c55e]/20 border border-[#22c55e]/40 rounded-sm" /> Buy zone (≤{buyThreshold} sats/vB)
