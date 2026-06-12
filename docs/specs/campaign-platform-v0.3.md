@@ -1,6 +1,6 @@
 # SteadyStack Campaign Platform v0.3 Specification
 
-> **Status:** Draft specification for the next major product iteration.
+> **Status:** Implementation-ready draft. Broad product/spec polish should stop here unless a Phase 2/3 implementation review finds a blocking issue.
 >
 > **Branch:** `feature/campaign-platform`
 >
@@ -529,6 +529,10 @@ Disallowed by default:
 - `stopped` → `active`; clone or create a new campaign instead.
 - silent `paused` → `active` without user confirmation, unless a future policy explicitly enables it.
 
+Stale-data note:
+
+- If a `waiting` campaign depends on BMRI and BMRI data becomes stale, it should remain `waiting` with a stale-data badge/event. Do not move it to `ready` until fresh BMRI data confirms the trigger.
+
 ---
 
 ## 9. Campaign events
@@ -550,6 +554,7 @@ Event examples:
 - `buy_recommended`
 - `buy_marked_complete`
 - `missed_alert`
+- `period_missed`
 - `data_source_unavailable`
 - `exchange_permission_issue`
 
@@ -744,6 +749,8 @@ type Campaign = {
   executionMode: 'advisory_manual' | 'approval_required_automation' | 'automated_limited';
   amountUsd: number;
   cadence: 'daily' | 'weekly' | 'monthly' | 'custom';
+  anchorDate: string; // date/time used to calculate intended buy periods
+  timezone: string; // IANA timezone, e.g. 'Europe/London'
   totalBudgetUsd?: number;
   startDate?: string;
   endDate?: string;
@@ -814,6 +821,7 @@ type CampaignEventType =
   | 'buy_recommended'
   | 'buy_marked_complete'
   | 'missed_alert'
+  | 'period_missed'
   | 'data_source_unavailable'
   | 'exchange_permission_issue';
 
