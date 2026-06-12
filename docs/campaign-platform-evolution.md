@@ -488,6 +488,39 @@ Round 3 design lessons:
 - Global/other-campaign alerts should be labelled separately from the selected campaign.
 - Production workspace should likely be decomposed into list, detail, edit wizard, report, and charts rather than one large page.
 
+Round 3 appraisal:
+
+- Plain-language BMRI layer works: lead with "Bitcoin looks neutral today" / "Bitcoin looks historically cheap right now"; keep P43/P9/P10 as secondary detail.
+- Fee framing works: lead with fee as % of planned buy; sat/vB and USD are supporting figures with caveats.
+- Empty start page is a good first-run experience: 3-step path, no blank form, trust panel showing stored / never stored / later automation.
+- Campaign detail split resolves the v2 god-page risk. The guardrail rule and report counters make the system auditable.
+- Bad-day/mobile sketch is strong and should inform the real spec: realistic failure taxonomy, safe degradation, one or two actions per error state.
+- "One decision per screen" should become a product/spec rule for mobile.
+
+Remaining product decisions before implementation:
+
+1. Missed-alert state
+   - Consider showing what was missed, e.g. estimated savings, but avoid nagging.
+   - Example: "You may have saved about $0.70" only when useful and clearly estimated.
+
+2. Mobile happy path
+   - V3 covers mobile alerts/errors, but not normal mobile campaign list/detail.
+   - Either add one small mobile happy-path sketch or include it directly in the build spec.
+
+3. Max-wait / fee-deadline rule
+   - A campaign must not wait forever for 1 sat/vB in a busy mempool.
+   - Add a user-set rule such as: "If the target is not reached after X days, buy anyway at the best available fee within guardrails".
+   - This should live alongside adaptive fee target and fee guardrails.
+
+4. Guardrail units
+   - Keep fee guardrail units consistent.
+   - If a buy is $100, 2% is $2, not $5.
+   - UI should clearly show derived equivalents when multiple guardrails are displayed.
+
+V3 verdict:
+
+The design direction is complete enough to stop broad sketching and start writing the real product/build specification. Further sketching should be limited to the mobile happy path or specific unresolved product decisions.
+
 ## 13. Immediate next recommendation
 
 The design artifacts are now committed on `feature/campaign-platform`:
