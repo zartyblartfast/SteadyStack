@@ -410,17 +410,65 @@ Tasks:
 
 ---
 
-## 11. Immediate next recommendation
+## 11. Round 2 sketch appraisal and risks
 
-Create a branch and preserve the planning/design work:
+The v2 sketch set is a strong direction, especially:
+
+- Clear narrative: DCA first, optimise second.
+- Three-page journey: overview → templates → workspace.
+- Trust model: advisory-first, hosted alerts, trade-only exchange keys later, withdrawal keys rejected.
+- Jargon handling: BMRI/P10/sat-vB tooltips and glossary.
+- Honest caveats around illustrative charts.
+- Consistent dark Bitcoin-themed visual system.
+
+Key risks to address before production:
+
+1. BMRI/P10 cognitive load
+   - Do not lead normal users with `BMRI P9` or `P10 value zone` alone.
+   - Add a plain-language layer first, e.g. "Bitcoin looks historically cheap right now".
+   - Keep percentile detail secondary.
+
+2. Fee optimisation framing
+   - sat/vB and USD examples are useful but can make savings look small.
+   - Lead with fee as % of planned buy, e.g. "fee ≈ 0.4% of this $100 buy".
+   - Show USD and sat/vB as supporting detail.
+
+3. Workspace god-page risk
+   - The sketch combines create, edit, monitor, report, guardrails, charts, and automation trust.
+   - Production likely needs decomposition: campaign list → campaign detail → edit wizard/report tabs.
+
+4. Missing states
+   - Add empty state for new users with zero campaigns.
+   - Add error states: failed API key, exchange outage, Bitcoin Card unavailable, missed alert, paused campaign, fee guardrail exceeded.
+   - Add mobile layout pass.
+
+5. Evidence/compliance risk
+   - The accumulation comparison chart is persuasive but must be backed by real backtest methodology before shipping.
+   - Keep visible caveats until real evidence is wired in.
+
+6. Sketch implementation detail
+   - Duplicate CSS is fine for disposable sketches only.
+   - Do not copy/paste sketch CSS structure directly into production.
+
+Suggested next sketch round:
+
+- Empty/new-user state.
+- Error/bad-day states.
+- Mobile layout pass.
+- Plain-language BMRI presentation: headline first, percentile second.
+- Fee card led by fee % of buy, with sat/vB/USD as detail.
+
+## 12. Immediate next recommendation
+
+The design artifacts are now committed on `feature/campaign-platform`:
 
 ```bash
-cd /tmp/SteadyStack-inspect
-git checkout -b feature/campaign-platform
-mkdir -p docs/ui-sketches/campaign-ui-v2
-cp -R sketches/v2/* docs/ui-sketches/campaign-ui-v2/
-git add docs/campaign-platform-evolution.md docs/ui-sketches/campaign-ui-v2
-git commit -m "docs: add campaign platform evolution plan and UI sketches"
+git checkout feature/campaign-platform
 ```
 
-Do not modify production app code until the design artifacts are safely committed.
+Committed files:
+
+- `docs/campaign-platform-evolution.md`
+- `docs/ui-sketches/campaign-ui-v2/`
+
+Do not modify production app code until the design direction and next-state sketches are agreed.
