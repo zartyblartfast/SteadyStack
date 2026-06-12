@@ -450,15 +450,45 @@ Key risks to address before production:
    - Duplicate CSS is fine for disposable sketches only.
    - Do not copy/paste sketch CSS structure directly into production.
 
-Suggested next sketch round:
+## 12. Round 3 sketch direction
 
-- Empty/new-user state.
-- Error/bad-day states.
-- Mobile layout pass.
-- Plain-language BMRI presentation: headline first, percentile second.
-- Fee card led by fee % of buy, with sat/vB/USD as detail.
+Round 3 addresses the v2 appraisal directly.
 
-## 12. Immediate next recommendation
+Design artifacts:
+
+- `docs/ui-sketches/campaign-ui-v3/001-empty-start/index.html`
+- `docs/ui-sketches/campaign-ui-v3/002-campaign-detail/index.html`
+- `docs/ui-sketches/campaign-ui-v3/003-mobile-bad-day/index.html`
+
+Goals:
+
+1. Empty/new-user state
+   - Avoid a dead-end "no campaigns" page.
+   - Use "Start a Bitcoin dollar-cost averaging campaign in a few minutes."
+   - Explain value in simple steps.
+   - Lead to campaign creation.
+
+2. Campaign detail split
+   - Avoid the v2 workspace becoming a god-page.
+   - Use campaign list → selected campaign detail → edit/report tabs.
+   - Keep charts below the decision.
+   - Lead BMRI with plain language: "Bitcoin looks historically cheap"; keep percentile detail secondary.
+
+3. Mobile bad-day states
+   - Show recovery flows for market data downtime, exchange permission issues, missed alerts, fee guardrail pauses, and paused campaigns.
+   - Mobile rule: one decision per screen.
+   - Use safe actions: retry, view cached data, reconnect key, use advisory mode, keep paused.
+
+Round 3 design lessons:
+
+- For new users, expand DCA at least once as "dollar-cost averaging".
+- Do not expose "empty state" / "bad day" labels as user-facing copy.
+- Lead fee displays with fee as % of planned buy; sat/vB and USD are supporting details.
+- For BMRI, plain language first, model detail second.
+- Global/other-campaign alerts should be labelled separately from the selected campaign.
+- Production workspace should likely be decomposed into list, detail, edit wizard, report, and charts rather than one large page.
+
+## 13. Immediate next recommendation
 
 The design artifacts are now committed on `feature/campaign-platform`:
 
@@ -470,5 +500,6 @@ Committed files:
 
 - `docs/campaign-platform-evolution.md`
 - `docs/ui-sketches/campaign-ui-v2/`
+- `docs/ui-sketches/campaign-ui-v3/`
 
 Do not modify production app code until the design direction and next-state sketches are agreed.
