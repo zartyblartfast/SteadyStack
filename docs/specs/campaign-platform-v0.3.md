@@ -136,6 +136,33 @@ Execution answers: who actually performs the buy?
 
 v0.3 should default to `advisory_manual`.
 
+## 3.4 Persistence and auth model
+
+For v0.3, use a backend-owned persistence model rather than browser-only localStorage.
+
+Recommended local/dev persistence:
+
+- SQLite for local development and single-user deployments, or PostgreSQL when running in hosted mode.
+- Frontend consumes backend APIs; the browser should not be the source of truth for campaigns/events/reports.
+
+Why:
+
+- campaign events and reports need durable storage,
+- hosted advisory monitoring needs server-side campaign rules,
+- future automation/audit logs need backend persistence,
+- export/import can be implemented from backend-owned data.
+
+For advisory-only local mode, auth can remain minimal during early development. For hosted advisory mode, add account/auth before storing real user campaign data remotely.
+
+Export/import requirements:
+
+- export campaigns, fee policies, BMRI policies, events, buy records, and reports;
+- include schema version and exported timestamp;
+- allow import preview before applying;
+- support replace vs merge later.
+
+Known v0.3 constraint: currency is USD-only unless explicitly expanded later.
+
 ---
 
 ## 4. Campaign templates
@@ -252,6 +279,28 @@ The UI must show:
 
 Do not present BMRI as a guaranteed signal.
 
+### 5.5 Metrics fallback and stale data behavior
+
+Bitcoin Card is a critical dependency for the new metrics flow. SteadyStack must define safe behavior when it is unavailable.
+
+Rules:
+
+- Cache the last successful metrics payload with `fetchedAt`.
+- Mark metrics stale when older than the configured stale threshold.
+- If fee data is stale, do not issue new buy recommendations.
+- If BMRI data is stale, do not trigger new Bear Market Boost campaigns.
+- If a campaign is already active and metrics become stale, move it to `needs_review` or `paused` depending on severity.
+- If Bitcoin Card is unavailable for days, keep campaigns safe and show a clear bad-day state: "Market data unavailable; campaigns paused until fresh data is available."
+
+Suggested initial thresholds:
+
+- fee data stale after 30 minutes,
+- price/network summary stale after 60 minutes,
+- BMRI latest stale after 24 hours,
+- BMRI history stale after 7 days for charting only.
+
+Cached data may be displayed with a stale badge, but should not silently drive new actions.
+
 ---
 
 ## 6. Adaptive fee optimisation
@@ -353,6 +402,30 @@ Potential fields:
   - `pause_campaign`,
 - deadline_event_message.
 
+### 6.8 Scheduling semantics
+
+Campaign cadence must be anchored and deterministic.
+
+Definitions:
+
+- `cadence`: daily, weekly, monthly, or custom.
+- `anchorDate`: the starting date/time used to calculate future intended buy periods.
+- `timezone`: user-selected timezone; default to the user's locale during setup.
+- `periodWindow`: the current intended DCA period, e.g. this week for weekly cadence.
+
+Rules:
+
+- Weekly campaigns default to the weekday/time of campaign activation unless user changes it.
+- Monthly campaigns default to the day-of-month of activation, with explicit handling for short months.
+- If the recommended fee target is reached during the period, generate a buy recommendation.
+- If the target is not reached before `maxWaitDays` / deadline, apply `onDeadline`.
+- Do not queue unlimited missed buys. A missed period should create a `missed_alert` or `period_missed` event and then advance to the next period according to campaign policy.
+- If multiple periods are missed because data was unavailable, surface a review state instead of silently stacking buys.
+
+Open product decision for implementation plan:
+
+- Whether a missed buy rolls into the next buy amount or is skipped. Default for v0.3 should be "ask/review" rather than silent rollover.
+
 ---
 
 ## 7. BMRI rules
@@ -429,6 +502,33 @@ Examples:
 - Campaign paused because fee exceeds guardrail.
 - Fixed-Term DCA completed.
 
+### 8.1 State transition table
+
+Allowed transitions should be explicit and tested.
+
+| From | To | Trigger | Notes |
+| --- | --- | --- | --- |
+| `draft` | `waiting` | user saves campaign but trigger/start condition not met | common for BMRI campaigns |
+| `draft` | `active` | user starts immediately | common for Core DCA |
+| `waiting` | `ready` | BMRI trigger met or scheduled start reached | requires user action in advisory mode |
+| `ready` | `active` | user confirms start | log `campaign_started` |
+| `active` | `paused` | user pauses, fee guardrail exceeded, stale data policy pauses | log reason |
+| `active` | `needs_review` | BMRI exit, stale metrics, missed periods, guardrail warning | requires user decision |
+| `active` | `completed` | fixed-term campaign reaches end/budget complete | report remains available |
+| `active` | `stopped` | user stops campaign | terminal unless explicitly cloned/restarted |
+| `paused` | `active` | user resumes or data/fees recover and user confirms | do not auto-resume unless policy explicitly allows |
+| `paused` | `stopped` | user stops | terminal |
+| `needs_review` | `active` | user chooses continue | log user decision |
+| `needs_review` | `paused` | user chooses pause or system requires safe pause | log reason |
+| `needs_review` | `stopped` | user stops | terminal |
+| `ready` | `waiting` | user snoozes/declines trigger | e.g. wait for next trigger/check |
+
+Disallowed by default:
+
+- `completed` → `active`; clone or create a new campaign instead.
+- `stopped` → `active`; clone or create a new campaign instead.
+- silent `paused` → `active` without user confirmation, unless a future policy explicitly enables it.
+
 ---
 
 ## 9. Campaign events
@@ -489,7 +589,7 @@ Report fields:
 
 - total_usd_spent,
 - btc_accumulated,
-- average_purchase_price,
+- average_purchase_price, // USD spent divided by BTC acquired; specify separately whether network fees are included in views
 - current_value_usd,
 - unrealized_gain_loss_usd,
 - unrealized_gain_loss_pct,
@@ -500,6 +600,20 @@ Report fields:
 - fee_target_change_count,
 - guardrail_pause_count,
 - missed_alert_count.
+
+---
+
+## 10.1 Multi-campaign interactions
+
+Users can run multiple campaigns at once. The system must avoid accidental over-allocation.
+
+Rules:
+
+- Each campaign has its own budget and guardrails.
+- Add optional global user guardrails before automation: max daily spend, max weekly spend, max monthly spend, and max active campaigns.
+- If multiple advisory campaigns trigger in the same period, show combined planned spend.
+- For v0.3 advisory mode, do not silently merge or execute multiple campaign buys. Present a review state.
+- For future automation, global spend caps must be enforced before campaign-specific actions.
 
 ---
 
@@ -665,7 +779,7 @@ type FeeTargetSnapshot = {
   estimatedConfirmationRange: string;
   regime: 'quiet' | 'normal' | 'elevated' | 'congested' | 'extreme';
   reason: string;
-  confidence: number;
+  confidence: number; // 0.0 to 1.0
   calculatedAt: string;
 };
 ```
@@ -683,11 +797,30 @@ type BmriPolicy = {
 
 ### 13.5 CampaignEvent
 
+`type` should be an enum, not a free string.
+
 ```ts
+type CampaignEventType =
+  | 'campaign_created'
+  | 'campaign_started'
+  | 'campaign_paused'
+  | 'campaign_resumed'
+  | 'campaign_completed'
+  | 'bmri_triggered'
+  | 'bmri_exit_review'
+  | 'fee_target_adjusted'
+  | 'fee_guardrail_warning'
+  | 'fee_guardrail_pause'
+  | 'buy_recommended'
+  | 'buy_marked_complete'
+  | 'missed_alert'
+  | 'data_source_unavailable'
+  | 'exchange_permission_issue';
+
 type CampaignEvent = {
   id: string;
   campaignId: string;
-  type: string;
+  type: CampaignEventType;
   severity: 'info' | 'success' | 'warning' | 'error' | 'action_required';
   title: string;
   message: string;
@@ -769,3 +902,5 @@ Before production implementation is considered aligned:
 - Advisory mode requires no sensitive execution credentials.
 - Automation design never requires seed phrases or withdrawal-enabled keys.
 - Campaign reporting persists after completion.
+- State transitions are explicit and tested.
+- Campaign/event persistence is backend-owned and exportable.
