@@ -535,4 +535,8 @@ Committed files:
 - `docs/ui-sketches/campaign-ui-v2/`
 - `docs/ui-sketches/campaign-ui-v3/`
 
-Do not modify production app code until the design direction and next-state sketches are agreed.
+Next source-of-truth spec:
+
+- `docs/specs/campaign-platform-v0.3.md`
+
+Do not modify production app code until the v0.3 specification is agreed.
