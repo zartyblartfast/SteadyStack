@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     coingecko_api_url: str = "https://api.coingecko.com/api/v3"
     binance_api_url: str = "https://api.binance.com/api/v3"
     mempool_api_url: str = "https://mempool.space/api"
+    bitcoin_card_base_url: str = "http://127.0.0.1:8787"
 
     # --- Cache TTLs (seconds) ---
     cache_ttl_fees: int = 90
