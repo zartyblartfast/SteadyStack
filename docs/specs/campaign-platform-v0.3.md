@@ -301,6 +301,40 @@ Suggested initial thresholds:
 
 Cached data may be displayed with a stale badge, but should not silently drive new actions.
 
+### 5.6 Bitcoin Risk and DCA metrics context
+
+Bitcoin Card now exposes richer MCP-only valuation context that should inform SteadyStack's future charting and campaign context.
+
+Relevant MCP tools:
+
+- `get_dca_metrics`: compact app bundle with price, fees, network state, BMRI zone/caveat, and Bitcoin Risk proxy.
+- `get_bitcoin_risk`: Coin Metrics Community API-derived MVRV Z-Score mapped locally to a 0-100 risk score and band. Includes daily `history[]`.
+
+Bitcoin Risk fields of interest:
+
+- `riskScore`: 0-100 valuation-risk score, not blended with sentiment.
+- `band`: `deep_value`, `value`, `neutral`, `elevated`, `high`, or `extreme`.
+- `history[]`: daily points with `date`, `unixTs`, `mvrv`, `mvrvZScore`, `riskScore`, and `band`.
+- `sentiment`: optional Alternative.me Fear & Greed context; separate from `riskScore` and attribution-required if shown.
+- `source.sourceQuality`, `methodology`, `limitations`, `fetchedAt`, and `dataDate`.
+
+Product decision for v0.3:
+
+- Do not use Bitcoin Risk as an automatic campaign trigger yet.
+- Treat it as valuation context alongside BMRI.
+- Do not blend BMRI and Bitcoin Risk into one opaque score in v0.3.
+- If both metrics are shown, explain agreements/disagreements plainly.
+
+Future chart requirement:
+
+Use a stacked valuation chart rather than a crowded single-axis overlay:
+
+1. BTC price, preferably log scale.
+2. BMRI full/lite index, 0-100 scale.
+3. Bitcoin Risk score, 0-100 scale.
+
+Use shared x-axis and campaign overlays across panels. Sentiment, if shown, should be a separate annotation/context layer, not part of valuation risk.
+
 ---
 
 ## 6. Adaptive fee optimisation
@@ -863,6 +897,7 @@ Tasks:
 3. Add tests with mocked payloads.
 4. Normalize summary and BMRI response types.
 5. Add backend API endpoint(s) for frontend consumption.
+6. Track follow-up for MCP/risk support: `get_bitcoin_risk` and `get_dca_metrics` expose Bitcoin Risk history, but current local HTTP docs still list only `/api/summary` and `/api/bmri-comparison`.
 
 ### Phase 3: Campaign domain model
 
