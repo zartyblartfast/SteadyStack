@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, BarChart3, Calculator, Server } from "lucide-react";
+import { Zap, BarChart3, Calculator, Server, Activity } from "lucide-react";
 import Header from "@/components/Header";
 import FeeMonitorPanel from "@/components/FeeMonitorPanel";
 import EvidencePanel from "@/components/EvidencePanel";
 import WhatIfPanel from "@/components/WhatIfPanel";
 import InfrastructurePanel from "@/components/InfrastructurePanel";
+import ValuationContextPanel from "@/components/ValuationContextPanel";
 
 const TABS = [
   { id: "fees", label: "Fees", icon: Zap },
+  { id: "valuation", label: "Valuation", icon: Activity },
   { id: "evidence", label: "Evidence", icon: BarChart3 },
   { id: "project", label: "Projection", icon: Calculator },
   { id: "node", label: "Infrastructure", icon: Server },
@@ -47,6 +49,10 @@ export default function Home() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <section className={activeTab === "fees" ? "" : "hidden"}>
           <FeeMonitorPanel />
+        </section>
+
+        <section className={activeTab === "valuation" ? "" : "hidden"}>
+          <ValuationContextPanel />
         </section>
 
         <section className={activeTab === "evidence" ? "" : "hidden"}>

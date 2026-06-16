@@ -24,6 +24,7 @@ This file applies to `frontend/`.
 
 - Use the v3 sketches as design direction, not production code to copy verbatim.
 - Production UI should consume stable backend APIs rather than hardcoded sketch data.
+- Valuation UI consumes `/api/metrics/bmri` and `/api/metrics/bitcoin-risk` via the Next.js BFF route `src/app/api/metrics/[kind]/route.ts`.
 - Keep advanced BMRI/fee settings collapsed or secondary by default.
 - Show source/caveat/fetchedAt details where metrics are used.
 - Campaign reports should remain accessible after completion.

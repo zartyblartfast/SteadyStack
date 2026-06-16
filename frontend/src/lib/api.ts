@@ -84,6 +84,90 @@ export async function fetchFeeHistory(
   return res.json();
 }
 
+
+export interface MetricsSummaryResponse {
+  fetched_at: string | null;
+  price_usd: number;
+  price_sources: Record<string, unknown>;
+  fees: {
+    fastest_fee: number;
+    half_hour_fee: number;
+    hour_fee: number;
+    minimum_fee: number;
+  };
+  network: {
+    block_height: number | null;
+    hashrate: number | null;
+    difficulty: number | null;
+    unmined_btc: number | null;
+    next_halving_eta: string | null;
+  };
+  source_names: string[];
+  caveats: string[];
+}
+
+export interface BmriMetricsResponse {
+  fetched_at: string | null;
+  full_index: number;
+  lite_index: number;
+  difference: number | null;
+  full_anchors: Record<string, unknown>;
+  lite_components: Record<string, unknown>;
+  stats: Record<string, unknown>;
+  history: Array<{
+    date: string;
+    price?: number;
+    fullIndex?: number;
+    liteIndex?: number;
+    difference?: number;
+  }>;
+  source_note: string | null;
+}
+
+export interface BitcoinRiskResponse {
+  fetched_at: string | null;
+  metric: string;
+  risk_score: number;
+  band: "deep_value" | "value" | "neutral" | "elevated" | "high" | "extreme" | string;
+  mvrv_z_score: number | null;
+  mvrv: number | null;
+  components: Record<string, unknown>;
+  history: Array<{
+    date: string;
+    unixTs?: number;
+    mvrv?: number;
+    mvrvZScore?: number;
+    components?: Record<string, unknown>;
+    riskScore?: number;
+    band?: string;
+  }>;
+  sentiment: Record<string, unknown> | null;
+  sentiment_status: string | null;
+  source: Record<string, unknown>;
+  methodology: string | null;
+  limitations: string | null;
+  data_date: string | null;
+  unix_ts: number | null;
+}
+
+export async function fetchMetricsSummary(): Promise<MetricsSummaryResponse> {
+  const res = await fetch(`${API_BASE}/api/metrics/summary`);
+  if (!res.ok) throw new Error(`Metrics summary API error: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchBmriMetrics(): Promise<BmriMetricsResponse> {
+  const res = await fetch(`${API_BASE}/api/metrics/bmri`);
+  if (!res.ok) throw new Error(`BMRI metrics API error: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchBitcoinRisk(): Promise<BitcoinRiskResponse> {
+  const res = await fetch(`${API_BASE}/api/metrics/bitcoin-risk`);
+  if (!res.ok) throw new Error(`Bitcoin Risk API error: ${res.status}`);
+  return res.json();
+}
+
 export async function healthCheck(): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/health`);
