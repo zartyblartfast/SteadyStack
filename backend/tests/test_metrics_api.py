@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.signals.bitcoin_card import BitcoinCardSummary, BmriComparison
+from app.signals.bitcoin_card import BitcoinCardSummary, BitcoinRisk, BmriComparison
 from app.signals.exceptions import SignalFetchError
 
 client = TestClient(app)
@@ -48,6 +48,43 @@ def _bmri() -> BmriComparison:
         ),
         source_note="Full BMRI is parsed from public Checkonchain chart data.",
         raw={"sample": "bmri"},
+    )
+
+
+
+def _risk() -> BitcoinRisk:
+    return BitcoinRisk(
+        fetched_at="2026-06-12T10:00:00Z",
+        metric="bitcoin-risk-composite",
+        risk_score=18.5,
+        band="value",
+        mvrv_z_score=0.72,
+        mvrv=1.43,
+        components={
+            "mvrvZDerived": {"value": 0.72, "score": 16.0},
+            "puellIssuance": {"value": 0.61, "score": 12.0},
+            "mayerMultiple": {"value": 0.92, "score": 24.0},
+            "ma200wDistance": {"value": 1.10, "score": 22.0},
+        },
+        history=(
+            {
+                "date": "2026-06-10",
+                "unixTs": 1781049600,
+                "mvrv": 1.41,
+                "mvrvZScore": 0.69,
+                "components": {"mvrvZDerived": {"score": 15.0}},
+                "riskScore": 17.0,
+                "band": "value",
+            },
+        ),
+        sentiment={"value": 32, "classification": "Fear"},
+        sentiment_status="available",
+        source={"name": "Coin Metrics Community API", "sourceQuality": "community-api-derived"},
+        methodology="Average of normalized free-source component scores.",
+        limitations="Not Cowen Risk, not Glassnode-equivalent, and not a trading signal.",
+        data_date="2026-06-11",
+        unix_ts=1781136000,
+        raw={"sample": "risk"},
     )
 
 
@@ -93,6 +130,43 @@ def test_metrics_bmri_returns_normalized_payload(mock_fetch: AsyncMock) -> None:
     assert data["source_note"].startswith("Full BMRI")
 
 
+
+def _risk() -> BitcoinRisk:
+    return BitcoinRisk(
+        fetched_at="2026-06-12T10:00:00Z",
+        metric="bitcoin-risk-composite",
+        risk_score=18.5,
+        band="value",
+        mvrv_z_score=0.72,
+        mvrv=1.43,
+        components={
+            "mvrvZDerived": {"value": 0.72, "score": 16.0},
+            "puellIssuance": {"value": 0.61, "score": 12.0},
+            "mayerMultiple": {"value": 0.92, "score": 24.0},
+            "ma200wDistance": {"value": 1.10, "score": 22.0},
+        },
+        history=(
+            {
+                "date": "2026-06-10",
+                "unixTs": 1781049600,
+                "mvrv": 1.41,
+                "mvrvZScore": 0.69,
+                "components": {"mvrvZDerived": {"score": 15.0}},
+                "riskScore": 17.0,
+                "band": "value",
+            },
+        ),
+        sentiment={"value": 32, "classification": "Fear"},
+        sentiment_status="available",
+        source={"name": "Coin Metrics Community API", "sourceQuality": "community-api-derived"},
+        methodology="Average of normalized free-source component scores.",
+        limitations="Not Cowen Risk, not Glassnode-equivalent, and not a trading signal.",
+        data_date="2026-06-11",
+        unix_ts=1781136000,
+        raw={"sample": "risk"},
+    )
+
+
 @patch("app.api.metrics.fetch_summary", new_callable=AsyncMock)
 def test_metrics_summary_returns_502_when_bitcoin_card_unavailable(
     mock_fetch: AsyncMock,
@@ -114,6 +188,41 @@ def test_metrics_bmri_returns_502_when_bitcoin_card_unavailable(
     mock_fetch.side_effect = SignalFetchError("bitcoin-card", "Unexpected response format")
 
     response = client.get("/api/metrics/bmri")
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Bitcoin Card metrics unavailable"
+
+
+@patch("app.api.metrics.fetch_bitcoin_risk", new_callable=AsyncMock)
+def test_metrics_bitcoin_risk_returns_normalized_payload(mock_fetch: AsyncMock) -> None:
+    """GET /api/metrics/bitcoin-risk returns normalized composite risk data."""
+    mock_fetch.return_value = _risk()
+
+    response = client.get("/api/metrics/bitcoin-risk")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["fetched_at"] == "2026-06-12T10:00:00Z"
+    assert data["metric"] == "bitcoin-risk-composite"
+    assert data["risk_score"] == 18.5
+    assert data["band"] == "value"
+    assert data["mvrv_z_score"] == 0.72
+    assert data["components"]["mayerMultiple"]["score"] == 24.0
+    assert data["history"][0]["riskScore"] == 17.0
+    assert data["sentiment"]["classification"] == "Fear"
+    assert data["sentiment_status"] == "available"
+    assert data["source"]["sourceQuality"] == "community-api-derived"
+    assert data["limitations"].startswith("Not Cowen Risk")
+
+
+@patch("app.api.metrics.fetch_bitcoin_risk", new_callable=AsyncMock)
+def test_metrics_bitcoin_risk_returns_502_when_bitcoin_card_unavailable(
+    mock_fetch: AsyncMock,
+) -> None:
+    """GET /api/metrics/bitcoin-risk maps Bitcoin Card failures to 502."""
+    mock_fetch.side_effect = SignalFetchError("bitcoin-card", "HTTP 503")
+
+    response = client.get("/api/metrics/bitcoin-risk")
 
     assert response.status_code == 502
     assert response.json()["detail"] == "Bitcoin Card metrics unavailable"

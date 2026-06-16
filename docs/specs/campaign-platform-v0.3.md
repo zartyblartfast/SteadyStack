@@ -906,7 +906,7 @@ Tasks:
 3. Add tests with mocked payloads.
 4. Normalize summary and BMRI response types.
 5. Add backend API endpoint(s) for frontend consumption.
-6. Add follow-up adapter/API support for local HTTP `GET /api/bitcoin-risk` and preserve risk components, history, methodology, limitations, and sentiment attribution separately.
+6. Bitcoin Risk local HTTP support is implemented via SteadyStack adapter/API; future work should decide how to surface it in valuation-context charts and campaign UI.
 
 ### Phase 3: Campaign domain model
 

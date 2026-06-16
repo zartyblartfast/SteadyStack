@@ -17,6 +17,7 @@ from app.signals.exceptions import SignalFetchError
 
 SUMMARY_ENDPOINT = "/api/summary"
 BMRI_COMPARISON_ENDPOINT = "/api/bmri-comparison"
+BITCOIN_RISK_ENDPOINT = "/api/bitcoin-risk"
 SOURCE_NAME = "bitcoin-card"
 
 
@@ -54,6 +55,28 @@ class BmriComparison:
     stats: dict[str, Any]
     history: tuple[dict[str, Any], ...]
     source_note: str | None
+    raw: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class BitcoinRisk:
+    """Normalized Bitcoin Risk composite from Bitcoin Card."""
+
+    fetched_at: str | None
+    metric: str
+    risk_score: float
+    band: str
+    mvrv_z_score: float | None
+    mvrv: float | None
+    components: dict[str, Any]
+    history: tuple[dict[str, Any], ...]
+    sentiment: dict[str, Any] | None
+    sentiment_status: str | None
+    source: dict[str, Any]
+    methodology: str | None
+    limitations: str | None
+    data_date: str | None
+    unix_ts: int | None
     raw: dict[str, Any]
 
 
@@ -159,6 +182,60 @@ async def fetch_bmri_comparison(
             stats=_dict(data.get("stats", {}), "stats"),
             history=tuple(_dict(item, "history item") for item in history),
             source_note=_optional_str(source.get("note")),
+            raw=data,
+        )
+    except (KeyError, TypeError, ValueError) as e:
+        raise SignalFetchError(SOURCE_NAME, f"Unexpected response format: {e}") from e
+
+
+async def fetch_bitcoin_risk(
+    client: httpx.AsyncClient | None = None,
+    base_url: str | None = None,
+    timeout: float | None = None,
+) -> BitcoinRisk:
+    """Fetch and normalize Bitcoin Card /api/bitcoin-risk.
+
+    Raises:
+        SignalFetchError: If the request fails or the response is malformed.
+    """
+    data = await _get_json(
+        endpoint=BITCOIN_RISK_ENDPOINT,
+        client=client,
+        base_url=base_url,
+        timeout=timeout,
+    )
+
+    try:
+        history = data.get("history", ())
+        if not isinstance(history, list | tuple):
+            raise TypeError("history must be a list")
+
+        sentiment = data.get("sentiment")
+        if sentiment is not None:
+            sentiment = _dict(sentiment, "sentiment")
+
+        return BitcoinRisk(
+            fetched_at=_optional_str(_first_present(data, "fetchedAt", "fetched_at")),
+            metric=str(data["metric"]),
+            risk_score=_required_float(
+                _first_present(data, "riskScore", "risk_score"), "riskScore"
+            ),
+            band=str(data["band"]),
+            mvrv_z_score=_optional_float(
+                _first_present(data, "mvrvZScore", "mvrv_z_score"), "mvrvZScore"
+            ),
+            mvrv=_optional_float(data.get("mvrv"), "mvrv"),
+            components=_dict(data.get("components", {}), "components"),
+            history=tuple(_dict(item, "history item") for item in history),
+            sentiment=sentiment,
+            sentiment_status=_optional_str(
+                _first_present(data, "sentimentStatus", "sentiment_status")
+            ),
+            source=_dict(data.get("source", {}), "source"),
+            methodology=_optional_str(data.get("methodology")),
+            limitations=_optional_str(data.get("limitations")),
+            data_date=_optional_str(_first_present(data, "dataDate", "data_date")),
+            unix_ts=_optional_int(_first_present(data, "unixTs", "unix_ts"), "unixTs"),
             raw=data,
         )
     except (KeyError, TypeError, ValueError) as e:

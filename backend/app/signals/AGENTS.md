@@ -16,7 +16,7 @@ This file applies to signal collectors/adapters under `backend/app/signals/` and
 - Current SteadyStack HTTP adapter covers:
   - `GET /api/summary`
   - `GET /api/bmri-comparison`
-- Bitcoin Card local HTTP also exposes `GET /api/bitcoin-risk`; SteadyStack adapter/API support is a follow-up.
+  - `GET /api/bitcoin-risk`
 - Bitcoin Card MCP exposes richer context:
   - `get_dca_metrics`
   - `get_bitcoin_risk` with composite components and daily `history[]`

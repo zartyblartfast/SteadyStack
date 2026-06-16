@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.signals.bitcoin_card import fetch_bmri_comparison, fetch_summary
+from app.signals.bitcoin_card import fetch_bitcoin_risk, fetch_bmri_comparison, fetch_summary
 from app.signals.exceptions import SignalFetchError
 
 router = APIRouter(prefix="/api/metrics", tags=["metrics"])
@@ -48,6 +48,24 @@ class BmriResponse(BaseModel):
     stats: dict[str, Any]
     history: list[dict[str, Any]]
     source_note: str | None
+
+
+class BitcoinRiskResponse(BaseModel):
+    fetched_at: str | None
+    metric: str
+    risk_score: float
+    band: str
+    mvrv_z_score: float | None
+    mvrv: float | None
+    components: dict[str, Any]
+    history: list[dict[str, Any]]
+    sentiment: dict[str, Any] | None
+    sentiment_status: str | None
+    source: dict[str, Any]
+    methodology: str | None
+    limitations: str | None
+    data_date: str | None
+    unix_ts: int | None
 
 
 @router.get("/summary", response_model=MetricsSummaryResponse)
@@ -98,4 +116,31 @@ async def metrics_bmri() -> BmriResponse:
         stats=bmri.stats,
         history=list(bmri.history),
         source_note=bmri.source_note,
+    )
+
+
+@router.get("/bitcoin-risk", response_model=BitcoinRiskResponse)
+async def metrics_bitcoin_risk() -> BitcoinRiskResponse:
+    """Return normalized Bitcoin Risk composite data from Bitcoin Card."""
+    try:
+        risk = await fetch_bitcoin_risk()
+    except SignalFetchError as e:
+        raise HTTPException(status_code=502, detail="Bitcoin Card metrics unavailable") from e
+
+    return BitcoinRiskResponse(
+        fetched_at=risk.fetched_at,
+        metric=risk.metric,
+        risk_score=risk.risk_score,
+        band=risk.band,
+        mvrv_z_score=risk.mvrv_z_score,
+        mvrv=risk.mvrv,
+        components=risk.components,
+        history=list(risk.history),
+        sentiment=risk.sentiment,
+        sentiment_status=risk.sentiment_status,
+        source=risk.source,
+        methodology=risk.methodology,
+        limitations=risk.limitations,
+        data_date=risk.data_date,
+        unix_ts=risk.unix_ts,
     )
