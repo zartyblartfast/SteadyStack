@@ -303,18 +303,25 @@ Cached data may be displayed with a stale badge, but should not silently drive n
 
 ### 5.6 Bitcoin Risk and DCA metrics context
 
-Bitcoin Card now exposes richer MCP-only valuation context that should inform SteadyStack's future charting and campaign context.
+Bitcoin Card now exposes Bitcoin Risk through both MCP and local HTTP. This should inform SteadyStack's future charting and campaign context.
 
-Relevant MCP tools:
+Relevant surfaces:
 
-- `get_dca_metrics`: compact app bundle with price, fees, network state, BMRI zone/caveat, and Bitcoin Risk proxy.
-- `get_bitcoin_risk`: Coin Metrics Community API-derived MVRV Z-Score mapped locally to a 0-100 risk score and band. Includes daily `history[]`.
+- MCP `get_dca_metrics`: compact app bundle with price, fees, network state, BMRI zone/caveat, and Bitcoin Risk proxy.
+- MCP `get_bitcoin_risk`: full Bitcoin Risk payload.
+- HTTP `GET /api/bitcoin-risk`: full Bitcoin Risk composite payload.
 
 Bitcoin Risk fields of interest:
 
-- `riskScore`: 0-100 valuation-risk score, not blended with sentiment.
+- `metric`: `bitcoin-risk-composite`.
+- `riskScore`: 0-100 composite risk score.
 - `band`: `deep_value`, `value`, `neutral`, `elevated`, `high`, or `extreme`.
-- `history[]`: daily points with `date`, `unixTs`, `mvrv`, `mvrvZScore`, `riskScore`, and `band`.
+- `components`: component breakdown with `value`, normalized `score`, `sourceMetric`, and `methodology`.
+- `components.mvrvZDerived`: MVRV-Z-derived valuation component.
+- `components.puellIssuance`: Puell-style issuance multiple.
+- `components.mayerMultiple`: Mayer Multiple.
+- `components.ma200wDistance`: daily approximation of 200-week moving-average distance.
+- `history[]`: daily points with `date`, `unixTs`, `mvrv`, `mvrvZScore`, `components`, `riskScore`, and `band`.
 - `sentiment`: optional Alternative.me Fear & Greed context; separate from `riskScore` and attribution-required if shown.
 - `source.sourceQuality`, `methodology`, `limitations`, `fetchedAt`, and `dataDate`.
 
@@ -324,6 +331,8 @@ Product decision for v0.3:
 - Treat it as valuation context alongside BMRI.
 - Do not blend BMRI and Bitcoin Risk into one opaque score in v0.3.
 - If both metrics are shown, explain agreements/disagreements plainly.
+- Label Bitcoin Risk clearly as bitcoin-card's transparent native composite; it is not Cowen Risk, not Glassnode-equivalent, not entity-adjusted, not proprietary, and not a trading signal.
+- Sentiment remains separate market context and must not be blended into valuation risk.
 
 Future chart requirement:
 
@@ -333,7 +342,7 @@ Use a stacked valuation chart rather than a crowded single-axis overlay:
 2. BMRI full/lite index, 0-100 scale.
 3. Bitcoin Risk score, 0-100 scale.
 
-Use shared x-axis and campaign overlays across panels. Sentiment, if shown, should be a separate annotation/context layer, not part of valuation risk.
+Use shared x-axis and campaign overlays across panels. Add optional component charts for Bitcoin Risk when the user expands details. Sentiment, if shown, should be a separate annotation/context layer, not part of valuation risk.
 
 ---
 
@@ -897,7 +906,7 @@ Tasks:
 3. Add tests with mocked payloads.
 4. Normalize summary and BMRI response types.
 5. Add backend API endpoint(s) for frontend consumption.
-6. Track follow-up for MCP/risk support: `get_bitcoin_risk` and `get_dca_metrics` expose Bitcoin Risk history, but current local HTTP docs still list only `/api/summary` and `/api/bmri-comparison`.
+6. Add follow-up adapter/API support for local HTTP `GET /api/bitcoin-risk` and preserve risk components, history, methodology, limitations, and sentiment attribution separately.
 
 ### Phase 3: Campaign domain model
 
