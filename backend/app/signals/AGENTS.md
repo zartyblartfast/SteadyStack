@@ -15,10 +15,14 @@ This file applies to signal collectors/adapters under `backend/app/signals/` and
 - Bitcoin Card v0.1.x has no hosted public API.
 - Current SteadyStack HTTP adapter covers:
   - `GET /api/summary`
+  - `GET /api/fee-history`
+  - `GET /api/fee-profile`
   - `GET /api/bmri-comparison`
   - `GET /api/bitcoin-risk`
 - Bitcoin Card MCP exposes richer context:
   - `get_dca_metrics`
+  - `get_fee_history`
+  - `get_fee_profile`
   - `get_bitcoin_risk` with composite components and daily `history[]`
   - `get_bitcoin_mean_reversion_index`
 - Preserve source metadata: `fetchedAt`, source names, `sourceQuality`, caveats, methodology, limitations, and data dates.

@@ -5,7 +5,13 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from app.signals.bitcoin_card import fetch_bitcoin_risk, fetch_bmri_comparison, fetch_summary
+from app.signals.bitcoin_card import (
+    fetch_bitcoin_risk,
+    fetch_bmri_comparison,
+    fetch_fee_history_bands,
+    fetch_fee_profile,
+    fetch_summary,
+)
 from app.signals.exceptions import SignalFetchError
 
 SAMPLE_SUMMARY = {
@@ -148,6 +154,45 @@ SAMPLE_BITCOIN_RISK = {
 }
 
 
+SAMPLE_FEE_HISTORY = {
+    "range": "1w",
+    "points": [
+        {
+            "t": "2026-06-12T00:00:00Z",
+            "minFee": 1,
+            "p10Fee": 2,
+            "p25Fee": 3,
+            "medianFee": 5,
+            "p75Fee": 8,
+            "p90Fee": 12,
+            "maxFee": 20,
+        }
+    ],
+    "source": "mempool.space",
+    "sourceQuality": "public-api-fee-rate-bands",
+    "partial": False,
+    "fetchedAt": "2026-06-12T10:00:00Z",
+}
+
+SAMPLE_FEE_PROFILE = {
+    "cadence": "weekly",
+    "buyAmountUsd": 100,
+    "targetVbytes": 140,
+    "recommendedSatVb": 2,
+    "estimatedFeeUsd": 0.18,
+    "estimatedFeePctOfBuy": 0.18,
+    "confidence": 0.82,
+    "regime": "quiet",
+    "reason": "2 sat/vB is realistic for a patient weekly DCA campaign.",
+    "currentFees": {"fastestFee": 5, "halfHourFee": 4, "hourFee": 3, "minimumFee": 1},
+    "historySummary": {"range": "1w", "p10Fee": 2, "medianFee": 5, "p90Fee": 12, "partial": False},
+    "source": "mempool.space",
+    "sourceQuality": "public-api-fee-rate-bands",
+    "limitations": "Fee targets are probabilistic estimates, not guarantees.",
+    "fetchedAt": "2026-06-12T10:00:00Z",
+}
+
+
 @pytest.mark.asyncio
 async def test_fetch_summary_parses_compact_payload() -> None:
     """Parses Bitcoin Card /api/summary into stable internal fields."""
@@ -272,3 +317,56 @@ async def test_fetch_bitcoin_risk_raises_signal_fetch_error_on_malformed_payload
     async with httpx.AsyncClient(transport=transport) as client:
         with pytest.raises(SignalFetchError, match="Unexpected response format"):
             await fetch_bitcoin_risk(client=client, base_url="http://bitcoin-card")
+
+
+@pytest.mark.asyncio
+async def test_fetch_fee_history_bands_parses_percentile_payload() -> None:
+    """Parses Bitcoin Card /api/fee-history percentile bands."""
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=SAMPLE_FEE_HISTORY))
+    async with httpx.AsyncClient(transport=transport) as client:
+        result = await fetch_fee_history_bands(
+            range="1w", client=client, base_url="http://bitcoin-card"
+        )
+
+    assert result.range == "1w"
+    assert result.points[0]["medianFee"] == 5.0
+    assert result.source == "mempool.space"
+    assert result.source_quality == "public-api-fee-rate-bands"
+    assert result.partial is False
+    assert result.fetched_at == "2026-06-12T10:00:00Z"
+
+
+@pytest.mark.asyncio
+async def test_fetch_fee_profile_parses_recommendation_payload() -> None:
+    """Parses Bitcoin Card /api/fee-profile patient DCA recommendation."""
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=SAMPLE_FEE_PROFILE))
+    async with httpx.AsyncClient(transport=transport) as client:
+        result = await fetch_fee_profile(
+            cadence="weekly",
+            buy_amount_usd=100,
+            target_vbytes=140,
+            client=client,
+            base_url="http://bitcoin-card",
+        )
+
+    assert result.cadence == "weekly"
+    assert result.buy_amount_usd == 100.0
+    assert result.target_vbytes == 140
+    assert result.recommended_sat_vb == 2.0
+    assert result.estimated_fee_usd == 0.18
+    assert result.estimated_fee_pct_of_buy == 0.18
+    assert result.confidence == 0.82
+    assert result.regime == "quiet"
+    assert result.current_fees["minimumFee"] == 1
+    assert result.history_summary["p10Fee"] == 2
+
+
+@pytest.mark.asyncio
+async def test_fetch_fee_history_bands_raises_on_malformed_payload() -> None:
+    """Rejects malformed Bitcoin Card fee-history payloads."""
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={"range": "1w"}))
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(SignalFetchError, match="Unexpected response format"):
+            await fetch_fee_history_bands(
+                range="1w", client=client, base_url="http://bitcoin-card"
+            )

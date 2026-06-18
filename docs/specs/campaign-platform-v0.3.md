@@ -906,7 +906,8 @@ Tasks:
 3. Add tests with mocked payloads.
 4. Normalize summary and BMRI response types.
 5. Add backend API endpoint(s) for frontend consumption.
-6. Bitcoin Risk local HTTP support is implemented via SteadyStack adapter/API; future work should decide how to surface it in valuation-context charts and campaign UI.
+6. Bitcoin Risk local HTTP support is implemented via SteadyStack adapter/API and surfaced in the Valuation UI.
+7. Bitcoin Card fee history/profile support is implemented for the normal fee-history UI path; `/api/fees/history/{period}` now maps Bitcoin Card fee bands to the legacy chart shape, and `/api/fees/profile` exposes the patient DCA fee recommendation.
 
 ### Phase 3: Campaign domain model
 

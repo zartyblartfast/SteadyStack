@@ -18,6 +18,8 @@ from app.signals.exceptions import SignalFetchError
 SUMMARY_ENDPOINT = "/api/summary"
 BMRI_COMPARISON_ENDPOINT = "/api/bmri-comparison"
 BITCOIN_RISK_ENDPOINT = "/api/bitcoin-risk"
+FEE_HISTORY_ENDPOINT = "/api/fee-history"
+FEE_PROFILE_ENDPOINT = "/api/fee-profile"
 SOURCE_NAME = "bitcoin-card"
 
 
@@ -77,6 +79,42 @@ class BitcoinRisk:
     limitations: str | None
     data_date: str | None
     unix_ts: int | None
+    raw: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class FeeHistoryBands:
+    """Normalized Bitcoin Card fee-history percentile bands."""
+
+    range: str
+    points: tuple[dict[str, Any], ...]
+    source: str | None
+    source_quality: str | None
+    partial: bool
+    note: str | None
+    fetched_at: str | None
+    raw: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class FeeProfile:
+    """Normalized Bitcoin Card patient DCA fee recommendation."""
+
+    cadence: str
+    buy_amount_usd: float
+    target_vbytes: int
+    recommended_sat_vb: float
+    estimated_fee_usd: float
+    estimated_fee_pct_of_buy: float
+    confidence: float
+    regime: str
+    reason: str
+    current_fees: dict[str, Any]
+    history_summary: dict[str, Any]
+    source: str | None
+    source_quality: str | None
+    limitations: str | None
+    fetched_at: str | None
     raw: dict[str, Any]
 
 
@@ -271,6 +309,96 @@ async def fetch_bitcoin_risk(
         raise SignalFetchError(SOURCE_NAME, f"Unexpected response format: {e}") from e
 
 
+async def fetch_fee_history_bands(
+    range: str,
+    client: httpx.AsyncClient | None = None,
+    base_url: str | None = None,
+    timeout: float | None = None,
+) -> FeeHistoryBands:
+    """Fetch and normalize Bitcoin Card /api/fee-history."""
+    data = await _get_json(
+        endpoint=f"{FEE_HISTORY_ENDPOINT}?range={range}",
+        client=client,
+        base_url=base_url,
+        timeout=timeout,
+    )
+
+    try:
+        points = data["points"]
+        if not isinstance(points, list | tuple):
+            raise TypeError("points must be a list")
+
+        return FeeHistoryBands(
+            range=str(data["range"]),
+            points=tuple(_fee_history_point(item) for item in points),
+            source=_optional_str(data.get("source")),
+            source_quality=_optional_str(_first_present(data, "sourceQuality", "source_quality")),
+            partial=bool(data.get("partial", False)),
+            note=_optional_str(data.get("note")),
+            fetched_at=_optional_str(_first_present(data, "fetchedAt", "fetched_at")),
+            raw=data,
+        )
+    except (KeyError, TypeError, ValueError) as e:
+        raise SignalFetchError(SOURCE_NAME, f"Unexpected response format: {e}") from e
+
+
+async def fetch_fee_profile(
+    *,
+    cadence: str,
+    buy_amount_usd: float,
+    target_vbytes: int = 140,
+    client: httpx.AsyncClient | None = None,
+    base_url: str | None = None,
+    timeout: float | None = None,
+) -> FeeProfile:
+    """Fetch and normalize Bitcoin Card /api/fee-profile."""
+    endpoint = (
+        f"{FEE_PROFILE_ENDPOINT}?cadence={cadence}"
+        f"&buyAmountUsd={buy_amount_usd}&targetVbytes={target_vbytes}"
+    )
+    data = await _get_json(endpoint=endpoint, client=client, base_url=base_url, timeout=timeout)
+
+    try:
+        return FeeProfile(
+            cadence=str(data["cadence"]),
+            buy_amount_usd=_required_float(
+                _first_present(data, "buyAmountUsd", "buy_amount_usd"), "buyAmountUsd"
+            ),
+            target_vbytes=_required_int(
+                _first_present(data, "targetVbytes", "target_vbytes"), "targetVbytes"
+            ),
+            recommended_sat_vb=_required_float(
+                _first_present(data, "recommendedSatVb", "recommended_sat_vb"),
+                "recommendedSatVb",
+            ),
+            estimated_fee_usd=_required_float(
+                _first_present(data, "estimatedFeeUsd", "estimated_fee_usd"),
+                "estimatedFeeUsd",
+            ),
+            estimated_fee_pct_of_buy=_required_float(
+                _first_present(data, "estimatedFeePctOfBuy", "estimated_fee_pct_of_buy"),
+                "estimatedFeePctOfBuy",
+            ),
+            confidence=_required_float(data.get("confidence"), "confidence"),
+            regime=str(data["regime"]),
+            reason=str(data["reason"]),
+            current_fees=_dict(
+                _first_present(data, "currentFees", "current_fees") or {}, "currentFees"
+            ),
+            history_summary=_dict(
+                _first_present(data, "historySummary", "history_summary") or {},
+                "historySummary",
+            ),
+            source=_optional_str(data.get("source")),
+            source_quality=_optional_str(_first_present(data, "sourceQuality", "source_quality")),
+            limitations=_optional_str(data.get("limitations")),
+            fetched_at=_optional_str(_first_present(data, "fetchedAt", "fetched_at")),
+            raw=data,
+        )
+    except (KeyError, TypeError, ValueError) as e:
+        raise SignalFetchError(SOURCE_NAME, f"Unexpected response format: {e}") from e
+
+
 async def _get_json(
     *,
     endpoint: str,
@@ -346,6 +474,28 @@ def _first_present(data: dict[str, Any], *keys: str) -> object | None:
         if key in data:
             return data[key]
     return None
+
+def _required_int(value: object, name: str) -> int:
+    if value is None:
+        raise KeyError(name)
+    return int(value)  # type: ignore[arg-type]
+
+
+def _fee_history_point(value: object) -> dict[str, Any]:
+    point = _dict(value, "fee history point")
+    return {
+        "t": _optional_str(point.get("t")) or str(point["t"]),
+        "minFee": _required_float(_first_present(point, "minFee", "min_fee"), "minFee"),
+        "p10Fee": _required_float(_first_present(point, "p10Fee", "p10_fee"), "p10Fee"),
+        "p25Fee": _required_float(_first_present(point, "p25Fee", "p25_fee"), "p25Fee"),
+        "medianFee": _required_float(
+            _first_present(point, "medianFee", "median_fee"), "medianFee"
+        ),
+        "p75Fee": _required_float(_first_present(point, "p75Fee", "p75_fee"), "p75Fee"),
+        "p90Fee": _required_float(_first_present(point, "p90Fee", "p90_fee"), "p90Fee"),
+        "maxFee": _required_float(_first_present(point, "maxFee", "max_fee"), "maxFee"),
+    }
+
 
 def _optional_float(value: object, name: str) -> float | None:
     if value is None:
