@@ -50,7 +50,7 @@ class BmriComparison:
     full_index: float
     lite_index: float
     difference: float | None
-    full_anchors: dict[str, Any]
+    full_anchors: dict[str, Any] | list[dict[str, Any]]
     lite_components: dict[str, Any]
     stats: dict[str, Any]
     history: tuple[dict[str, Any], ...]
@@ -101,12 +101,47 @@ async def fetch_summary(
         price = _dict(data["price"], "price")
         fees = _dict(data["fees"], "fees")
         network = _dict(data.get("network", {}), "network")
+        block_height = _dict(data.get("blockHeight", {}), "blockHeight")
+        mining = _dict(data.get("mining", {}), "mining")
+        supply = _dict(data.get("supply", {}), "supply")
         source = _dict(data.get("source", {}), "source")
 
+        price_sources = price.get("sources", {})
+        if isinstance(price_sources, list):
+            price_sources = {"records": price_sources, "agreement": price.get("agreement")}
+
+        source_names = source.get("names")
+        if source_names is None:
+            source_names = _source_names_from_summary(data)
+
+        block_height_value = _first_present(network, "blockHeight", "block_height")
+        if block_height_value is None:
+            block_height_value = _first_present(block_height, "value")
+
+        hashrate_value = _first_present(network, "hashrate", "hashrateEhS")
+        if hashrate_value is None:
+            hashrate_value = _first_present(mining, "hashrate", "hashrateEhS")
+
+        difficulty_value = _first_present(network, "difficulty")
+        if difficulty_value is None:
+            difficulty_value = _first_present(mining, "difficulty")
+
+        unmined_value = _first_present(network, "unminedBtc", "unmined_btc")
+        if unmined_value is None:
+            unmined_value = _first_present(supply, "unmined", "unminedBtc")
+
+        halving_value = _first_present(network, "nextHalvingEta", "next_halving_eta")
+        if halving_value is None:
+            halving_value = _first_present(supply, "nextHalvingEta")
+
         return BitcoinCardSummary(
-            fetched_at=_optional_str(_first_present(data, "fetchedAt", "fetched_at")),
-            price_usd=_required_float(_first_present(price, "usd", "priceUsd"), "price.usd"),
-            price_sources=_dict(price.get("sources", {}), "price.sources"),
+            fetched_at=_optional_str(
+                _first_present(data, "fetchedAt", "fetched_at", "generatedAt")
+            ),
+            price_usd=_required_float(
+                _first_present(price, "usd", "priceUsd", "value"), "price.usd"
+            ),
+            price_sources=_dict(price_sources, "price.sources"),
             fastest_fee=_required_float(
                 _first_present(fees, "fastestFee", "fastest_fee"), "fees.fastestFee"
             ),
@@ -117,18 +152,12 @@ async def fetch_summary(
             minimum_fee=_required_float(
                 _first_present(fees, "minimumFee", "minimum_fee"), "fees.minimumFee"
             ),
-            block_height=_optional_int(
-                _first_present(network, "blockHeight", "block_height"), "network.blockHeight"
-            ),
-            hashrate=_optional_float(network.get("hashrate"), "network.hashrate"),
-            difficulty=_optional_float(network.get("difficulty"), "network.difficulty"),
-            unmined_btc=_optional_float(
-                _first_present(network, "unminedBtc", "unmined_btc"), "network.unminedBtc"
-            ),
-            next_halving_eta=_optional_str(
-                _first_present(network, "nextHalvingEta", "next_halving_eta")
-            ),
-            source_names=_str_tuple(source.get("names", ())),
+            block_height=_optional_int(block_height_value, "network.blockHeight"),
+            hashrate=_optional_float(hashrate_value, "network.hashrate"),
+            difficulty=_optional_float(difficulty_value, "network.difficulty"),
+            unmined_btc=_optional_float(unmined_value, "network.unminedBtc"),
+            next_halving_eta=_optional_str(halving_value),
+            source_names=_str_tuple(source_names),
             caveats=_str_tuple(source.get("caveats", ())),
             raw=data,
         )
@@ -171,7 +200,7 @@ async def fetch_bmri_comparison(
             difference=_optional_float(
                 latest.get("difference"), "latest.difference"
             ),
-            full_anchors=_dict(
+            full_anchors=_dict_or_list(
                 _first_present(latest, "fullAnchors", "full_anchors") or {},
                 "latest.fullAnchors",
             ),
@@ -270,6 +299,22 @@ async def _get_json(
         raise SignalFetchError(SOURCE_NAME, f"Unexpected response format: {e}") from e
 
 
+def _source_names_from_summary(data: dict[str, Any]) -> tuple[str, ...]:
+    names: list[str] = []
+    for section_name in ("price", "blockHeight", "fees", "mining"):
+        section = data.get(section_name)
+        if isinstance(section, dict):
+            source = section.get("source")
+            if isinstance(source, str):
+                names.append(source)
+            sources = section.get("sources")
+            if isinstance(sources, list):
+                for item in sources:
+                    if isinstance(item, dict) and isinstance(item.get("source"), str):
+                        names.append(item["source"])
+    return tuple(dict.fromkeys(names))
+
+
 def _join_url(base_url: str, endpoint: str) -> str:
     return base_url.rstrip("/") + endpoint
 
@@ -278,6 +323,14 @@ def _dict(value: object, name: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise TypeError(f"{name} must be an object")
     return value
+
+
+def _dict_or_list(value: object, name: str) -> dict[str, Any] | list[dict[str, Any]]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+        return value
+    raise TypeError(f"{name} must be an object or list of objects")
 
 
 def _required_float(value: object, name: str) -> float:

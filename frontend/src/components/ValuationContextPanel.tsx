@@ -80,6 +80,33 @@ function formatDate(date: string): string {
   return parsed.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
 }
 
+function addMonths(date: Date, months: number): Date {
+  const next = new Date(date);
+  next.setUTCMonth(next.getUTCMonth() + months);
+  return next;
+}
+
+function yearlyTicks(data: ChartPoint[]): string[] {
+  const dates = data.map((point) => point.date).filter(Boolean).sort();
+  if (dates.length <= 2) return dates;
+
+  const first = new Date(`${dates[0]}T00:00:00Z`);
+  const last = new Date(`${dates.at(-1)}T00:00:00Z`);
+  if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return [];
+
+  const ticks: string[] = [dates[0]];
+  let cursor = addMonths(first, 12);
+
+  while (cursor <= last) {
+    const target = cursor.toISOString().slice(0, 10);
+    const nearest = dates.find((date) => date >= target);
+    if (nearest && nearest !== ticks.at(-1)) ticks.push(nearest);
+    cursor = addMonths(cursor, 12);
+  }
+
+  return ticks;
+}
+
 function mergeHistory(bmri: BmriMetricsResponse, risk: BitcoinRiskResponse): ChartPoint[] {
   const byDate = new Map<string, ChartPoint>();
 
@@ -138,18 +165,26 @@ function PanelChart({
   domain?: [number, number] | ["auto", "auto"];
   formatter?: (value: number) => string;
 }) {
+  const xTicks = yearlyTicks(data);
+
   return (
     <div className="rounded-xl border border-card-border bg-background/40 p-4">
       <p className="mb-3 text-sm font-medium text-foreground">{title}</p>
-      <div className="h-44">
+      <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 6, right: 16, bottom: 0, left: 0 }}>
+          <LineChart data={data} margin={{ top: 6, right: 16, bottom: 24, left: 0 }}>
             <CartesianGrid stroke="#1e2a3a" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
+              ticks={xTicks.length > 0 ? xTicks : undefined}
+              interval={0}
               tickFormatter={formatDate}
               minTickGap={36}
+              angle={-45}
+              textAnchor="end"
+              height={56}
               tick={{ fill: "#64748b", fontSize: 11 }}
+              tickMargin={12}
               axisLine={{ stroke: "#1e2a3a" }}
               tickLine={false}
             />

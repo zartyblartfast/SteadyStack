@@ -43,7 +43,7 @@ class BmriResponse(BaseModel):
     full_index: float
     lite_index: float
     difference: float | None
-    full_anchors: dict[str, Any]
+    full_anchors: dict[str, Any] | list[dict[str, Any]]
     lite_components: dict[str, Any]
     stats: dict[str, Any]
     history: list[dict[str, Any]]
