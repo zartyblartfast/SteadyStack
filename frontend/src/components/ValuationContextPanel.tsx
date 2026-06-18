@@ -35,9 +35,10 @@ type ChartPoint = {
   riskBand: string | null;
 };
 
-type TimeRange = "6m" | "1y" | "2y" | "5y" | "all";
+type TimeRange = "1m" | "6m" | "1y" | "2y" | "5y" | "all";
 
 const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; months: number | null }[] = [
+  { value: "1m", label: "1M", months: 1 },
   { value: "6m", label: "6M", months: 6 },
   { value: "1y", label: "1Y", months: 12 },
   { value: "2y", label: "2Y", months: 24 },
@@ -90,6 +91,21 @@ function formatDate(date: string): string {
   return parsed.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
 }
 
+function formatTickDate(date: string, data: ChartPoint[]): string {
+  const parsed = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  if (tickIntervalMonths(data) <= 2) {
+    return parsed.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  return formatDate(date);
+}
+
+function addDays(date: Date, days: number): Date {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
 function addMonths(date: Date, months: number): Date {
   const next = new Date(date);
   next.setUTCMonth(next.getUTCMonth() + months);
@@ -125,6 +141,18 @@ function timeTicks(data: ChartPoint[]): string[] {
 
   const interval = tickIntervalMonths(data);
   const ticks: string[] = [dates[0]];
+
+  if (interval <= 2) {
+    let cursor = addDays(first, 7);
+    while (cursor <= last) {
+      const target = cursor.toISOString().slice(0, 10);
+      const nearest = dates.find((date) => date >= target);
+      if (nearest && nearest !== ticks.at(-1)) ticks.push(nearest);
+      cursor = addDays(cursor, 7);
+    }
+    return ticks;
+  }
+
   let cursor = addMonths(first, interval);
 
   while (cursor <= last) {
@@ -223,7 +251,7 @@ function PanelChart({
               dataKey="date"
               ticks={xTicks.length > 0 ? xTicks : undefined}
               interval={0}
-              tickFormatter={formatDate}
+              tickFormatter={(date) => formatTickDate(String(date), data)}
               minTickGap={36}
               angle={-45}
               textAnchor="end"
