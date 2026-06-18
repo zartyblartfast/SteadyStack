@@ -94,7 +94,7 @@ function formatDate(date: string): string {
 function formatTickDate(date: string, data: ChartPoint[]): string {
   const parsed = new Date(`${date}T00:00:00Z`);
   if (Number.isNaN(parsed.getTime())) return date;
-  if (tickIntervalMonths(data) <= 2) {
+  if (chartSpanMonths(data) <= 2) {
     return parsed.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
   return formatDate(date);
@@ -115,6 +115,16 @@ function addMonths(date: Date, months: number): Date {
 function monthsBetween(start: Date, end: Date): number {
   return (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth();
 }
+function chartSpanMonths(data: ChartPoint[]): number {
+  const dates = data.map((point) => point.date).filter(Boolean).sort();
+  if (dates.length < 2) return 0;
+
+  const first = new Date(`${dates[0]}T00:00:00Z`);
+  const last = new Date(`${dates.at(-1)}T00:00:00Z`);
+  if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return 0;
+  return monthsBetween(first, last);
+}
+
 
 function tickIntervalMonths(data: ChartPoint[]): number {
   const dates = data.map((point) => point.date).filter(Boolean).sort();
@@ -142,7 +152,7 @@ function timeTicks(data: ChartPoint[]): string[] {
   const interval = tickIntervalMonths(data);
   const ticks: string[] = [dates[0]];
 
-  if (interval <= 2) {
+  if (chartSpanMonths(data) <= 2) {
     let cursor = addDays(first, 7);
     while (cursor <= last) {
       const target = cursor.toISOString().slice(0, 10);
