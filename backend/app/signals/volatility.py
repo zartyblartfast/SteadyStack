@@ -6,10 +6,11 @@ and return computed values for use in the SignalSnapshot.
 
 from __future__ import annotations
 
-import math
 import statistics
+from typing import TYPE_CHECKING
 
-from app.signals.price import PriceHistory
+if TYPE_CHECKING:
+    from app.signals.history import PriceHistory
 
 
 def compute_moving_average(history: PriceHistory, days: int) -> float | None:

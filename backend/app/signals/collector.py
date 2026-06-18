@@ -19,7 +19,7 @@ from app.signals.bitcoin_card import (
     fetch_summary,
 )
 from app.signals.exceptions import SignalFetchError
-from app.signals.price import PriceHistory
+from app.signals.history import PriceHistory
 from app.signals.volatility import compute_moving_average, compute_volatility
 
 logger = logging.getLogger(__name__)

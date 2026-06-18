@@ -10,7 +10,7 @@ This file applies to signal collectors/adapters under `backend/app/signals/` and
 
 ## Local Contracts
 
-- Bitcoin Card is intended to become SteadyStack's single Bitcoin metrics source.
+- Bitcoin Card is SteadyStack's single normal-path Bitcoin metrics source.
 - Bitcoin Card API doc: `docs/bitcoin-card-api-usage.md` in `https://github.com/zartyblartfast/bitcoin-card`.
 - Bitcoin Card v0.1.x has no hosted public API.
 - Current SteadyStack HTTP adapter covers:
@@ -29,6 +29,7 @@ This file applies to signal collectors/adapters under `backend/app/signals/` and
 - Do not treat BMRI or Bitcoin Risk as automated trading signals.
 - When normalizing numeric fields, never use truthy `or` fallback; `0.0` is a valid BMRI/Risk value. Use presence-aware key lookup.
 - Upstream failures should raise `SignalFetchError` and be mapped by APIs to safe user-facing errors.
+- Do not add direct CoinGecko, Binance, mempool.space, Blockstream, or other Bitcoin-metrics calls to the app path. Add missing data to Bitcoin Card first, then consume it here.
 
 ## Work Guidance
 

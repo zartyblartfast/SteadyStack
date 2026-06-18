@@ -227,7 +227,7 @@ Default behavior:
 
 ## 5. Bitcoin Card metrics integration
 
-Bitcoin Card should become SteadyStack's metrics source.
+Bitcoin Card is SteadyStack's normal-path metrics source. If SteadyStack needs a Bitcoin metric that Bitcoin Card does not expose, enhance Bitcoin Card first rather than adding another direct source to SteadyStack.
 
 ### 5.1 Local HTTP endpoints
 

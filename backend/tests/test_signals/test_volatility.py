@@ -5,7 +5,7 @@ These are pure function tests — no mocking, no I/O.
 
 import pytest
 
-from app.signals.price import PriceHistory
+from app.signals.history import PriceHistory
 from app.signals.volatility import compute_moving_average, compute_volatility
 
 MS_PER_HOUR = 3_600_000
