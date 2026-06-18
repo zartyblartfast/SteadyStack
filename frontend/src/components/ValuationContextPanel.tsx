@@ -35,6 +35,16 @@ type ChartPoint = {
   riskBand: string | null;
 };
 
+type TimeRange = "6m" | "1y" | "2y" | "5y" | "all";
+
+const TIME_RANGE_OPTIONS: { value: TimeRange; label: string; months: number | null }[] = [
+  { value: "6m", label: "6M", months: 6 },
+  { value: "1y", label: "1Y", months: 12 },
+  { value: "2y", label: "2Y", months: 24 },
+  { value: "5y", label: "5Y", months: 60 },
+  { value: "all", label: "All", months: null },
+];
+
 const RISK_LABELS: Record<string, string> = {
   deep_value: "deep value",
   value: "low",
@@ -86,7 +96,26 @@ function addMonths(date: Date, months: number): Date {
   return next;
 }
 
-function yearlyTicks(data: ChartPoint[]): string[] {
+function monthsBetween(start: Date, end: Date): number {
+  return (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth();
+}
+
+function tickIntervalMonths(data: ChartPoint[]): number {
+  const dates = data.map((point) => point.date).filter(Boolean).sort();
+  if (dates.length < 2) return 12;
+
+  const first = new Date(`${dates[0]}T00:00:00Z`);
+  const last = new Date(`${dates.at(-1)}T00:00:00Z`);
+  if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return 12;
+
+  const spanMonths = monthsBetween(first, last);
+  if (spanMonths <= 8) return 1;
+  if (spanMonths <= 18) return 3;
+  if (spanMonths <= 36) return 6;
+  return 12;
+}
+
+function timeTicks(data: ChartPoint[]): string[] {
   const dates = data.map((point) => point.date).filter(Boolean).sort();
   if (dates.length <= 2) return dates;
 
@@ -94,17 +123,33 @@ function yearlyTicks(data: ChartPoint[]): string[] {
   const last = new Date(`${dates.at(-1)}T00:00:00Z`);
   if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return [];
 
+  const interval = tickIntervalMonths(data);
   const ticks: string[] = [dates[0]];
-  let cursor = addMonths(first, 12);
+  let cursor = addMonths(first, interval);
 
   while (cursor <= last) {
     const target = cursor.toISOString().slice(0, 10);
     const nearest = dates.find((date) => date >= target);
     if (nearest && nearest !== ticks.at(-1)) ticks.push(nearest);
-    cursor = addMonths(cursor, 12);
+    cursor = addMonths(cursor, interval);
   }
 
   return ticks;
+}
+
+function filterByTimeRange(data: ChartPoint[], range: TimeRange): ChartPoint[] {
+  const selected = TIME_RANGE_OPTIONS.find((option) => option.value === range);
+  if (!selected?.months) return data;
+
+  const latestDate = data.at(-1)?.date;
+  if (!latestDate) return data;
+
+  const latest = new Date(`${latestDate}T00:00:00Z`);
+  if (Number.isNaN(latest.getTime())) return data;
+
+  const start = addMonths(latest, -selected.months);
+  const startKey = start.toISOString().slice(0, 10);
+  return data.filter((point) => point.date >= startKey);
 }
 
 function mergeHistory(bmri: BmriMetricsResponse, risk: BitcoinRiskResponse): ChartPoint[] {
@@ -165,7 +210,7 @@ function PanelChart({
   domain?: [number, number] | ["auto", "auto"];
   formatter?: (value: number) => string;
 }) {
-  const xTicks = yearlyTicks(data);
+  const xTicks = timeTicks(data);
 
   return (
     <div className="rounded-xl border border-card-border bg-background/40 p-4">
@@ -227,6 +272,7 @@ export default function ValuationContextPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -254,6 +300,11 @@ export default function ValuationContextPanel() {
     if (!bmri || !risk) return [];
     return mergeHistory(bmri, risk);
   }, [bmri, risk]);
+
+  const visibleChartData = useMemo(
+    () => filterByTimeRange(chartData, timeRange),
+    [chartData, timeRange]
+  );
 
   const latestPrice = [...chartData].reverse().find((point) => point.price !== null)?.price ?? null;
   const bmriText = bmriPlainLanguage(bmri?.full_index ?? null);
@@ -328,6 +379,22 @@ export default function ValuationContextPanel() {
                   Lower BMRI and lower Bitcoin Risk generally mean cheaper/lower-risk context.
                   Price uses its own scale; BMRI and Risk use 0–100 style scales.
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2" aria-label="Chart time range">
+                  {TIME_RANGE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setTimeRange(option.value)}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        timeRange === option.value
+                          ? "border-accent bg-accent text-black"
+                          : "border-card-border bg-background/40 text-muted hover:border-accent hover:text-foreground"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="flex items-start gap-2 rounded-xl border border-card-border bg-background/40 p-3 text-xs text-muted md:max-w-sm">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
@@ -342,21 +409,21 @@ export default function ValuationContextPanel() {
               <div className="rounded-xl border border-card-border bg-background/40 p-8 text-center text-sm text-muted">
                 Preparing valuation chart...
               </div>
-            ) : chartData.length === 0 ? (
+            ) : visibleChartData.length === 0 ? (
               <div className="rounded-xl border border-card-border bg-background/40 p-8 text-center text-sm text-muted">
                 No valuation history available yet.
               </div>
             ) : (
               <div className="space-y-4">
                 <PanelChart
-                  data={chartData}
+                  data={visibleChartData}
                   title="BTC price"
                   dataKey="price"
                   stroke="#f7931a"
                   formatter={formatUsd}
                 />
                 <PanelChart
-                  data={chartData}
+                  data={visibleChartData}
                   title="BMRI full index"
                   dataKey="fullIndex"
                   stroke="#22c55e"
@@ -364,7 +431,7 @@ export default function ValuationContextPanel() {
                   formatter={(value) => `P${value.toFixed(0)}`}
                 />
                 <PanelChart
-                  data={chartData}
+                  data={visibleChartData}
                   title="Bitcoin Risk score"
                   dataKey="riskScore"
                   stroke="#60a5fa"
